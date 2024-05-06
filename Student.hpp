@@ -1,12 +1,12 @@
-#include <iostream>
 #include <string>
+using namespace std;
 
 struct Student {
-    std::string name;
-    int studentID;
+    string name;
+    int id;
     int score;
 
-    Student(std::string n, int id) : name(n), studentID(id), score(0) {}
+    Student(std::string n = "", int sid = 0, int sc = 0) : name(n), id(sid), score(sc) {}
 };
 
 void updateScore(Student& student, int questionScore, bool isDiscarded) {
@@ -15,9 +15,4 @@ void updateScore(Student& student, int questionScore, bool isDiscarded) {
     } else {
         student.score += questionScore;  // Full score
     }
-}
-
-int main() {
-    Student melinda("Melinda", 12345);
-    return 0;
 }

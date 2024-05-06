@@ -1,99 +1,94 @@
+
+
+// Game.hpp
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
-
+#include "Student.hpp"
+#include "Question.hpp"
+#include "LinkedList.hpp"
+#include "DynamicArray.hpp"
 using namespace std;
 
 class Game {
 private:
-    struct Student {
-        int id;
-        string name;
-        int score;
-    };
+    LinkedList<Student> studentList;
+    DynamicArray<Question> questionList; // not sure if we wanted to use rigid array list or dynamic
 
-    struct Question {
-        int id;
-        string question;
-        string answer;
-    };
-
-    vector<Student> studentList;
 
 public:
-    void prepareGame() {
-        loadStudentData();
-        loadQuestionData();
-        // Actions:
-        // setDiscardedCards() => select 5/10 random questions (straight-forward & revealed) from questionList and add into discardedCards stack
-        // setUnansweredCards() => add the leftover 295/290 ques (multi-answer & hidden) into the unansweredCards stack
-        // chooseQues() => user choose unanswered or discarded (1/2)
-        // acceptQues() => user choose accept or decline (Yes/No)
-        // answerQues() => prompt user input
-        // scoreUnansweredQues() => compare user input with question's data answer and score based on (incorrect, partially correct, and correct)
-        // scoreDiscardedQues() => compare user input with question's data answer and score based on (incorrect and correct - 80% only)
-        // updateScore() => update the student's total score after each round
-        // checkDiscardedStack() => check if discardedStack is 5/10 cards (max size). 
-        // insertDiscardedQues() => insert answered card at the bottom of discardedCards stack
-        // insertAnsweredQues() => insert answered card at the top of answeredCards stack
-
-        // Phases: 
-        // 1. Setup decks: setDiscardedCards() + setUnansweredCards() #user can only pick the top card 
-        // 2. Answer ques: chooseQues() => acceptQues() => if accepted, answerQues() + scoreUnansweredQues()/scoreDiscardedQues() || if declined, chooseQues() => updateScore()
-        // 3. Put back cards: checkDiscardedStack() => if full, insertAnsweredQues() || if have space, insertDiscardedQues()
-        // 4. Repeat 2 & 4 for 2 rounds
-        // 5. Show results: display leaderboard + hierachy
-
-        // for (const auto& question : questions) {
-        //     unansweredStack.push(question);
-        // }
-    }
-
-    void loadStudentData() { // working code!
+    void loadStudentData() { // working code - linkedlist for dynamically update the student's score.
         ifstream file("students.csv");
         string line;
         while (getline(file, line)) {
             istringstream iss(line);
-            Student student;
             string id, name, score;
             getline(iss, id, '|');
             getline(iss, name, '|');
             getline(iss, score, '|');
-            student.id = stoi(id);
-            student.name = name;
-            student.score = stoi(score);
-            studentList.push_back(student); //Implement once done arraylist algorithm
+            Student student(name, stoi(id), stoi(score));
+            studentList.append(student); 
         }
         file.close();
-        for (auto& student : studentList) {
-            cout << "ID: " << student.id << ", Name: " << student.name << ", Score: " << student.score << endl;
+        for (int i = 0; i < studentList.getSize(); i++) {
+            Student& student = studentList[i];
+            cout << "Student ID: " << student.id << ", Name: " << student.name << ", Score: " << student.score << endl;
         }
     }
 
-    void loadQuestionData() { // waiting for question struct...
+    void loadQuestionData() { // working code - dynamicArray to store the questions
         ifstream file("questions.csv");
         string line;
+        if (!file.is_open()) {
+            cerr << "Error opening question.csv file." << endl;
+            return;
+        }
+
         while (getline(file, line)) {
             istringstream iss(line);
-            Student student;
-            string id, name, score;
-            getline(iss, id, '|');
-            getline(iss, name, '|');
-            getline(iss, score, '|');
-            student.id = stoi(id);
-            student.name = name;
-            student.score = stoi(score);
-            studentList.push_back(student); //Implement once done arraylist algorithm
+            string idStr, questionText, option1, option2, option3, option4, correctAnswerStr;
+            getline(iss, idStr, '|');
+            getline(iss, questionText, '|');
+            getline(iss, option1, '|');
+            getline(iss, option2, '|');
+            getline(iss, option3, '|');
+            getline(iss, option4, '|');
+            getline(iss, correctAnswerStr, '|');
+
+            int id = stoi(idStr);
+            set<char> correctAnswers;
+            parseAnswers(correctAnswers, correctAnswerStr);
+
+            questionList.add(Question(id, questionText, option1, option2, option3, option4, correctAnswers));
         }
         file.close();
-        for (auto& student : studentList) {
-            cout << "ID: " << student.id << ", Name: " << student.name << ", Score: " << student.score << endl;
+        for (int i = 0; i < questionList.getSize() - 290; i++) {
+            Question& question = questionList[i];
+            cout << "Question ID: " << question.id << endl <<
+            question.text << endl <<
+            question.option1 << endl <<
+            question.option2 << endl <<
+            question.option3 << endl <<
+            question.option4 << endl;
+        }
+    }
+
+    void parseAnswers(set<char>& correctAnswers, const string& correctAnswerStr) { // untested
+        istringstream answerStream(correctAnswerStr);
+        char answer;
+        while (answerStream >> answer) {
+            correctAnswers.insert(answer);
+            if (answerStream.peek() == ',' || answerStream.peek() == ' ') {
+                answerStream.ignore();  // Ignore the delimiter (comma or space)
+            }
         }
     }
 };
 
 int main() {
+    Game game;
+    // game.loadQuestionData();
     return 0;
 }
