@@ -1,22 +1,24 @@
-
-
-// Game.hpp
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
+#include <random>
+#include <algorithm>
+
 #include "Student.hpp"
 #include "Question.hpp"
 #include "LinkedList.hpp"
-#include "DynamicArray.hpp"
+#include "Vector.hpp"
+#include "Stack.hpp"
 using namespace std;
 
 class Game {
 private:
     LinkedList<Student> studentList;
-    DynamicArray<Question> questionList; // not sure if we wanted to use rigid array list or dynamic
-
+    Vector<Question> questionList; 
+    Stack<Question, 10> discardedCards;
+    Stack<Question, 290> unansweredCards;
 
 public:
     void loadStudentData() { // working code - linkedlist for dynamically update the student's score.
@@ -61,18 +63,9 @@ public:
             set<char> correctAnswers;
             parseAnswers(correctAnswers, correctAnswerStr);
 
-            questionList.add(Question(id, questionText, option1, option2, option3, option4, correctAnswers));
+            questionList.push_back(Question(id, questionText, option1, option2, option3, option4, correctAnswers));
         }
         file.close();
-        for (int i = 0; i < questionList.getSize() - 290; i++) {
-            Question& question = questionList[i];
-            cout << "Question ID: " << question.id << endl <<
-            question.text << endl <<
-            question.option1 << endl <<
-            question.option2 << endl <<
-            question.option3 << endl <<
-            question.option4 << endl;
-        }
     }
 
     void parseAnswers(set<char>& correctAnswers, const string& correctAnswerStr) { // untested
@@ -85,10 +78,92 @@ public:
             }
         }
     }
+
+    void setUpDecks() { // delegate the questions into unanswered and discarded decks
+        random_device rd;
+        mt19937 gen(rd());
+        
+        // Shuffle the vector 
+        shuffle(questionList.begin(), questionList.end(), gen); 
+
+        // Add 10 questions from questionList to discardedCards
+        for (int i = 0; i < 10 && i < questionList.getSize(); i++) {
+            discardedCards.push(questionList[i]);
+        }
+
+        cout << "total count: " << questionList.getSize() << endl;
+        cout << "discarded count: " << discardedCards.getSize() << endl;
+
+        // Add remaining questions from questionList to unansweredCards
+        for (int i = 10; i < questionList.getSize(); i++) {
+            unansweredCards.push(questionList[i]);
+        }
+
+        cout << "unanswered count: " << unansweredCards.getSize() << endl;
+    }
+
+    void answerDiscardedQuestion() { // pop top question from discarded stack and ask for answer confirmation
+        Question card = discardedCards.pop();
+        cout << "Question " << card.id << ": " << card.text << endl <<
+        card.option1 << endl <<
+        card.option2 << endl <<
+        card.option3 << endl <<
+        card.option4 << endl;
+        cout << "Do you accept the question? If you decline, you will receive 0 score for this round... (1 for accept, 2 for decline): ";
+        int choice;
+        cin >> choice;
+        if (choice == 1) {
+            string answer;
+            cout << "Enter your answer (a/b/c/d): ";
+            cin >> answer;
+        } else if (choice == 2) {
+            // update student's round score to 0 (score + 0)
+        } else {
+            cout << "Invalid input!";
+        }
+    }
+
+    void answerUnansweredQuestion() { // pop top question from unanswered stack and ask for answer confirmation
+        Question card = unansweredCards.pop();
+        cout << "Question " << card.id << ": " <<
+        card.text << endl <<
+        card.option1 << endl <<
+        card.option2 << endl <<
+        card.option3 << endl <<
+        card.option4 << endl;
+        cout << "Do you accept the question? If you decline, you will receive 0 score for this round..." << endl <<
+        "(1 for accept, 2 for decline)";
+        int choice;
+        cin >> choice;
+        if (choice == 1) {
+            string answer;
+            cout << "Enter your answer (a/b/c/d): ";
+            cin >> answer;
+        } else if (choice == 2) {
+            // update student's round score to 0 (score + 0)
+        } else {
+            cout << "Invalid input!";
+        }
+    }
+
+    void chooseQuestion() { // user choose discarded or unanswered question
+        cout << "Would you like to choose a Discarded/Unanswered question? (1 for discarded, 2 for unanswered): ";
+        int choice;
+        cin >> choice;
+        if (choice == 1) {
+            answerDiscardedQuestion();
+        } else if (choice == 2) {
+            answerUnansweredQuestion();
+        } else {
+            cout << "Invalid input!";
+        }
+    } 
 };
 
 int main() {
     Game game;
-    // game.loadQuestionData();
+    game.loadQuestionData();
+    game.setUpDecks();
+    game.chooseQuestion();
     return 0;
 }
