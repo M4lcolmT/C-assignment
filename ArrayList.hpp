@@ -42,7 +42,7 @@ public:
         return data[index];
     }
 
-    size_t size() const {
+    size_t getSize() const {
         return length;
     }
 };

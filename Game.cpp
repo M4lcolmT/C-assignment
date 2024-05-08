@@ -8,6 +8,7 @@
 
 #include "Student.hpp"
 #include "Question.hpp"
+#include "ArrayList.hpp"
 #include "LinkedList.hpp"
 #include "Vector.hpp"
 #include "Stack.hpp"
@@ -15,10 +16,11 @@ using namespace std;
 
 class Game {
 private:
-    LinkedList<Student> studentList;
+    ArrayList<Student> studentList;
     Vector<Question> questionList; 
     Stack<Question, 10> discardedCards;
     Stack<Question, 290> unansweredCards;
+    LinkedList<Question> answeredCards;
 
 public:
     void loadStudentData() { // working code - linkedlist for dynamically update the student's score.
@@ -31,7 +33,7 @@ public:
             getline(iss, name, '|');
             getline(iss, score, '|');
             Student student(name, stoi(id), stoi(score));
-            studentList.append(student); 
+            studentList.add(student); 
         }
         file.close();
         for (int i = 0; i < studentList.getSize(); i++) {
@@ -102,6 +104,10 @@ public:
         cout << "unanswered count: " << unansweredCards.getSize() << endl;
     }
 
+    // void updateScore() {
+
+    // }
+
     void answerDiscardedQuestion() { // pop top question from discarded stack and ask for answer confirmation
         Question card = discardedCards.pop();
         cout << "Question " << card.id << ": " << card.text << endl <<
@@ -109,13 +115,17 @@ public:
         card.option2 << endl <<
         card.option3 << endl <<
         card.option4 << endl;
-        cout << "Do you accept the question? If you decline, you will receive 0 score for this round... (1 for accept, 2 for decline): ";
+        cout << "Do you accept the question? If you decline, you will receive 0 score for this round..." << endl <<
+        "1. Accept" << endl <<
+        "2. Decline" << endl <<
+        "Enter your choice: ";
         int choice;
         cin >> choice;
         if (choice == 1) {
             string answer;
             cout << "Enter your answer (a/b/c/d): ";
-            cin >> answer;
+            cin >> answer; // include validation to ensure invalid input
+            // check answer and update total score for student
         } else if (choice == 2) {
             // update student's round score to 0 (score + 0)
         } else {
@@ -132,13 +142,16 @@ public:
         card.option3 << endl <<
         card.option4 << endl;
         cout << "Do you accept the question? If you decline, you will receive 0 score for this round..." << endl <<
-        "(1 for accept, 2 for decline)";
+        "1. Accept" << endl <<
+        "2. Decline" << endl <<
+        "Enter your choice: ";
         int choice;
         cin >> choice;
         if (choice == 1) {
             string answer;
             cout << "Enter your answer (a/b/c/d): ";
-            cin >> answer;
+            cin >> answer; // include validation to ensure invalid input
+            // check answer and update total score for student
         } else if (choice == 2) {
             // update student's round score to 0 (score + 0)
         } else {
@@ -147,7 +160,10 @@ public:
     }
 
     void chooseQuestion() { // user choose discarded or unanswered question
-        cout << "Would you like to choose a Discarded/Unanswered question? (1 for discarded, 2 for unanswered): ";
+        cout << "Would you like to choose a Discarded/Unanswered question?" << endl <<
+        "1. Discarded" << endl <<
+        "2. Unanswered" << endl <<
+        "Enter your choice: ";
         int choice;
         cin >> choice;
         if (choice == 1) {
@@ -158,12 +174,45 @@ public:
             cout << "Invalid input!";
         }
     } 
+
+    void putBackCard(Question answeredCard) { // untested - put back card after round ends
+        if (discardedCards.getSize() != 10) {
+            discardedCards.push(answeredCard); // stack
+        } else {
+            answeredCards.prepend(answeredCard); // linkedlist
+        }
+    }
+
+    void viewScoreboard() { // prompt user to select view leaderboard/hierarchy
+        cout << "View Score:" << endl <<
+        "1. Leaderboard" << endl <<
+        "2. Rank hierarchy" << endl <<
+        "Enter your choice: ";
+        int choice;
+        cin >> choice;
+        if (choice == 1) {
+            //showLeaderboard();
+        } else if (choice == 2) {
+            //showhierarchy();
+        } else {
+            cout << "Invalid input!";
+        }
+    }
+
+    void repeatRound() { // 3 rounds then calculate the total score for each student
+        for (size_t i = 1; i < 4; i++)
+        {
+            cout << "Round " << i << ":" << endl;
+            chooseQuestion();
+        }
+        // viewScoreboard();
+    }
 };
 
 int main() {
     Game game;
     game.loadQuestionData();
     game.setUpDecks();
-    game.chooseQuestion();
+    game.repeatRound();
     return 0;
 }

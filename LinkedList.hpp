@@ -3,7 +3,6 @@
 #include <sstream>
 #include <string>
 
-// Self-created linked list class
 template <typename T>
 class LinkedList {
 private:
@@ -20,8 +19,6 @@ private:
 public:
     LinkedList() : head(nullptr), tail(nullptr), size(0) {}
 
-    // Add more member functions as needed (e.g., append, remove, etc.)
-
     // Function to add an element to the end of the list
     void append(const T& value) {
         Node* newNode = new Node(value);
@@ -30,6 +27,17 @@ public:
         } else {
             tail->next = newNode;
             tail = newNode;
+        }
+        size++;
+    }
+
+    void prepend(const T& value) {
+        Node* newNode = new Node(value);
+        if (head == nullptr) {
+            head = tail = newNode;
+        } else {
+            newNode->next = head;
+            head = newNode;
         }
         size++;
     }
