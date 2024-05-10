@@ -173,17 +173,16 @@ public:
 
 
     void answerDiscardedQuestion(Question card) {
-        cout << "Question " << card.id << ": " << card.text << endl
-            << card.option1 << endl
-            << card.option2 << endl
-            << card.option3 << endl
-            << card.option4 << endl;
+        cout << "Question " << card.id << ": " << card.text << endl;
+        for (size_t i = 0; i < card.options.getSize(); i++) {
+            cout << card.options[i] << endl;
+        }
         int choice;
         cout << "Do you accept the question? If you decline, you will receive 0 score for this round..." << endl
             << "1. Accept" << endl
             << "2. Decline" << endl
             << "Enter your choice: ";
-        validateInput("answerQuestion", choice); 
+        validateInput("answerQuestion", choice);
         if (choice == 1) {
             string answer;
             cout << "Enter your answer (e.g., a/b,c/b,c,d): ";
@@ -196,13 +195,13 @@ public:
 
             if (numCorrect == formattedCardAnswer.length()) {
                 cout << "Correct answer! Well done!" << endl;
-                cout << "Score for this question: " << questionScore << endl; 
+                cout << "Score for this question: " << questionScore << endl;
             } else if (numCorrect > 0) {
                 cout << "Partially correct. " << numCorrect << " out of " << formattedCardAnswer.length() << " correct." << endl;
-                cout << "Score for this question: " << questionScore << endl; 
+                cout << "Score for this question: " << questionScore << endl;
             } else {
                 cout << "Incorrect answer. Correct answer was: " << formattedCardAnswer << endl;
-                cout << "Score for this question: 0" << endl; 
+                cout << "Score for this question: 0" << endl;
             }
             newStudent.updateScore(card.id, questionScore);
 
@@ -216,20 +215,18 @@ public:
 
 
 
-    void answerUnansweredQuestion() { // pop top question from unanswered stack and ask for answer confirmation
+    void answerUnansweredQuestion() {
         Question card = unansweredCards.pop();
-        cout << "Question " << card.id << ": " <<
-        card.text << endl <<
-        card.option1 << endl <<
-        card.option2 << endl <<
-        card.option3 << endl <<
-        card.option4 << endl;
+        cout << "Question " << card.id << ": " << card.text << endl;
+        for (size_t i = 0; i < card.options.getSize(); i++) {
+            cout << card.options[i] << endl;
+        }
         int choice;
         cout << "Do you accept the question? If you decline, you will receive 0 score for this round..." << endl
-        << "1. Accept" << endl
-        << "2. Decline" << endl
-        << "Enter your choice: ";
-        validateInput("answerQuestion", choice); 
+            << "1. Accept" << endl
+            << "2. Decline" << endl
+            << "Enter your choice: ";
+        validateInput("answerQuestion", choice);
         if (choice == 1) {
             string answer;
             cout << "Enter your answer (e.g., a/b,c/b,c,d): ";
@@ -243,20 +240,20 @@ public:
 
             if (numCorrect == formattedCardAnswer.length()) {
                 cout << "Correct answer! Well done!" << endl;
-                cout << "Score for this question: " << questionScore << endl; 
+                cout << "Score for this question: " << questionScore << endl;
             } else if (numCorrect > 0) {
                 cout << "Partially correct. " << numCorrect << " out of " << formattedCardAnswer.length() << " correct." << endl;
-                cout << "Score for this question: " << questionScore << endl; 
+                cout << "Score for this question: " << questionScore << endl;
             } else {
                 cout << "Incorrect answer. Correct answer was: " << formattedCardAnswer << endl;
-                cout << "Score for this question: 0" << endl; 
+                cout << "Score for this question: 0" << endl;
             }
             newStudent.updateScore(card.id, questionScore);
 
         } else if (choice == 2) {
             cout << "Question declined. No score awarded for this round." << endl;
             newStudent.updateScore(card.id, 0);
-        } 
+        }
         putBackCard(card);
     }
 
