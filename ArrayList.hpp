@@ -19,16 +19,13 @@ private:
     }
 
 public:
-    ArrayList() : data(nullptr), capacity(0), length(0) {}
+    ArrayList() : data(nullptr), capacity(101), length(0) {}
 
     ~ArrayList() {
         delete[] data;
     }
 
     void add(const T& value) {
-        if (length == capacity) {
-            resize();
-        }
         data[length++] = value;
     }
 

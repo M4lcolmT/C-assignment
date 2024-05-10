@@ -2,12 +2,13 @@
 using namespace std;
 
 struct Student {
+    string id;
     string name;
-    int id;
     int score;
 
-    Student(std::string n = "", int sid = 0, int sc = 0) : name(n), id(sid), score(sc) {}
+    Student(string tpNum = "", string n = "", int sc = 0) : id(tpNum), name(n), score(sc) {}
 };
+
 
 void updateScore(Student& student, int questionScore, bool isDiscarded) {
     if (isDiscarded) {

@@ -13,11 +13,11 @@ public:
     string option2;
     string option3;
     string option4;
-    set<char> correctAnswers;    // Correct answer(s) stored as 'a', 'b', 'c', etc.
+    string correctAnswers;   
 
     Question() : id(0) {}
     
-    Question(int id, const string& text, const string& option1, const string& option2, const string& option3,  const string& option4, const set<char>& correctAnswers)
+    Question(int id, const string& text, const string& option1, const string& option2, const string& option3,  const string& option4, const string& correctAnswers)
         : id(id), text(text), option1(option1), option2(option2),option3(option3),option4(option4),correctAnswers(correctAnswers) {}
 
     
