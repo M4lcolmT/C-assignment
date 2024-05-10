@@ -1,53 +1,56 @@
-#include<iostream>
-using namespace std;
-
 template<typename T, int capacity>
 class Stack {
 private:
     T stack[capacity];
-    int top = -1;
+    int topIndex = -1; // Renamed to topIndex to avoid naming conflicts
 
 public:
-    void push(Question pushedQuestion) {
-        if (top >= capacity - 1) {
+    void push(const T& pushedQuestion) {
+        if (topIndex >= capacity - 1) {
             cout << "Stack is overflow !! " << endl;
         }
         else {
-            top = top + 1;
-            stack[top] = pushedQuestion;
+            topIndex++;
+            stack[topIndex] = pushedQuestion;
         }
     }
 
-    Question pop() {
-        if (top == -1) {
+    T pop() {
+        if (topIndex == -1) {
             cout << "Stack is underflow !! " << endl;
             // Assuming Question has a default constructor
-            return Question(); // Return a default-constructed Question object
+            return T(); // Return a default-constructed T object
         }
         else {
-            Question poppedQuestion = stack[top];
-            top = top - 1;
+            T poppedQuestion = stack[topIndex];
+            topIndex--;
             return poppedQuestion;
         }
     }
 
+    T& top() {
+        if (isEmpty()) {
+            throw std::runtime_error("Stack is empty");
+        }
+        return stack[topIndex];
+    }
 
     void traverse() {
-        if (top == -1) {
+        if (isEmpty()) {
             cout << "Stack is empty !! " << endl;
         }
         else {
-            for (int i = top; i >= 0; i--) {
+            for (int i = topIndex; i >= 0; i--) {
                 cout << stack[i] << endl;
             }
         }
     }
 
     bool isEmpty() {
-        return top == -1;
+        return topIndex == -1;
     }
 
     int getSize() const {
-        return top + 1;
+        return topIndex + 1;
     }
 };

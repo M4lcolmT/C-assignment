@@ -8,6 +8,7 @@ using namespace std;
 class Question {
 public:
     int id;
+    string category;
     string text;
     string option1;
     string option2;
@@ -17,8 +18,8 @@ public:
 
     Question() : id(0) {}
     
-    Question(int id, const string& text, const string& option1, const string& option2, const string& option3,  const string& option4, const string& correctAnswers)
-        : id(id), text(text), option1(option1), option2(option2),option3(option3),option4(option4),correctAnswers(correctAnswers) {}
+    Question(int id, const string& category, const string& text, const string& option1, const string& option2, const string& option3,  const string& option4, const string& correctAnswers)
+        : id(id), category(category), text(text), option1(option1), option2(option2),option3(option3),option4(option4),correctAnswers(correctAnswers) {}
 
     
 };

@@ -8,7 +8,6 @@
 
 #include "Student.hpp"
 #include "Question.hpp"
-#include "ArrayList.hpp"
 #include "LinkedList.hpp"
 #include "Vector.hpp"
 #include "Stack.hpp"
@@ -17,9 +16,9 @@ using namespace std;
 class Game {
 private:
     LinkedList<Student> studentList;
-    Vector<Question> questionList; 
-    Stack<Question, 10> discardedCards;
-    Stack<Question, 290> unansweredCards;
+    Vector<Question> questionList; // decide should use linkedlist or what...
+    Stack<Question, 5> discardedCards;
+    Stack<Question, 295> unansweredCards;
     LinkedList<Question> answeredCards;
     Student newStudent;
 
@@ -36,8 +35,7 @@ public:
             string id, name, score;
             getline(iss, id, '|');
             getline(iss, name, '|');
-            getline(iss, score, '|');
-            Student student(id, name, stoi(score));
+            Student student(id, name);
             studentList.append(student); 
         }
         file.close();
@@ -53,8 +51,9 @@ public:
 
         while (getline(file, line)) {
             istringstream iss(line);
-            string idStr, questionText, option1, option2, option3, option4, correctAnswer;
+            string idStr, category, questionText, option1, option2, option3, option4, correctAnswer;
             getline(iss, idStr, '|');
+            getline(iss, category, '|');
             getline(iss, questionText, '|');
             getline(iss, option1, '|');
             getline(iss, option2, '|');
@@ -64,7 +63,7 @@ public:
 
             int id = stoi(idStr);
 
-            questionList.push_back(Question(id, questionText, option1, option2, option3, option4, correctAnswer));
+            questionList.push_back(Question(id, category, questionText, option1, option2, option3, option4, correctAnswer));
         }
         file.close();
     }
@@ -81,6 +80,7 @@ public:
         if (choice == 1) {
             string id;
             string name;
+            ArrayList<Score> scores;
             cout << "Ready to play? Enter your student details below." << endl
             << "TP number: ";
             cin >> id;
@@ -88,7 +88,7 @@ public:
             cin >> name;   
             cin.clear();
             cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear the input stream 
-            newStudent = Student(id, name, 0);
+            newStudent = Student(id, name);
             studentList.append(newStudent);
             repeatRound();
         } else if (choice == 2) {
@@ -103,16 +103,15 @@ public:
         // Shuffle the vector 
         shuffle(questionList.begin(), questionList.end(), gen); 
 
-        // Add 10 questions from questionList to discardedCards
+        // Add 5 questions from questionList to discardedCards
         for (int i = 0; i < 5 && i < questionList.getSize(); i++) {
             discardedCards.push(questionList[i]);
         }
-
         cout << "total count: " << questionList.getSize() << endl;
         cout << "discarded count: " << discardedCards.getSize() << endl;
 
         // Add remaining questions from questionList to unansweredCards
-        for (int i = 10; i < questionList.getSize(); i++) {
+        for (int i = 5; i < questionList.getSize(); i++) {
             unansweredCards.push(questionList[i]);
         }
 
@@ -168,8 +167,7 @@ public:
     }
 
 
-    void answerDiscardedQuestion() {
-        Question card = discardedCards.pop();
+    void answerDiscardedQuestion(Question card) {
         cout << "Question " << card.id << ": " << card.text << endl
             << card.option1 << endl
             << card.option2 << endl
@@ -189,7 +187,7 @@ public:
             string formattedUserAnswer = removeCommas(answer);
             string formattedCardAnswer = removeCommas(card.correctAnswers);
             int numCorrect = countCharAnswer(formattedUserAnswer, formattedCardAnswer);
-            int questionScore = numCorrect * 5;
+            int questionScore = (numCorrect * 5) * 0.8;
 
             if (numCorrect == formattedCardAnswer.length()) {
                 cout << "Correct answer! Well done!" << endl;
@@ -201,12 +199,11 @@ public:
                 cout << "Incorrect answer. Correct answer was: " << formattedCardAnswer << endl;
                 cout << "Score for this question: 0" << endl; 
             }
-
-            updateScore(newStudent, questionScore, false);
+            newStudent.updateScore(card.id, questionScore);
 
         } else if (choice == 2) {
             cout << "Question declined. No score awarded for this round." << endl;
-            updateScore(newStudent, 0, false);
+            newStudent.updateScore(card.id, 0);
             // Put back discarded stack
         }
         putBackCard(card);
@@ -249,17 +246,20 @@ public:
                 cout << "Incorrect answer. Correct answer was: " << formattedCardAnswer << endl;
                 cout << "Score for this question: 0" << endl; 
             }
-
-            updateScore(newStudent, questionScore, false);
+            newStudent.updateScore(card.id, questionScore);
 
         } else if (choice == 2) {
             cout << "Question declined. No score awarded for this round." << endl;
-            updateScore(newStudent, 0, false);
+            newStudent.updateScore(card.id, 0);
         } 
         putBackCard(card);
     }
 
     void chooseQuestion() { // user choose discarded or unanswered question
+        cout << "Here is a sneak peek of the discarded question ;)" << endl
+        << "if you choose a discarded question, you only receive 80 percent of the total marks..." << endl;
+        Question discardedCard = discardedCards.pop(); 
+        cout << "Discarded Question: " << discardedCard.text << endl;
         int choice;
         cout << "Would you like to choose a Discarded/Unanswered question?" << endl <<
         "1. Discarded" << endl <<
@@ -267,18 +267,21 @@ public:
         "Enter your choice: ";
         validateInput("chooseQuestion", choice); 
         if (choice == 1) {
-            answerDiscardedQuestion();
+            answerDiscardedQuestion(discardedCard);
         } else if (choice == 2) {
             answerUnansweredQuestion();
         } 
     } 
 
-    void putBackCard(Question answeredCard) { // untested - put back card after round ends
-        if (discardedCards.getSize() != 10) {
-            discardedCards.push(answeredCard); // stack
-        } else {
-            answeredCards.prepend(answeredCard); // linkedlist
-        }
+    void putBackCard(Question answeredCard) { // logic not set yet, how does the discarded cards work?
+        answeredCards.prepend(answeredCard);
+        cout << "Unanswered cards length: " << unansweredCards.getSize() << endl;
+        cout << "Discarded cards length: " << discardedCards.getSize() << endl;
+        cout << "Answered cards length: " << answeredCards.getSize() << endl;
+        if (discardedCards.getSize() != 5) {
+            Question q = unansweredCards.pop();
+            discardedCards.push(q);
+        } 
     }
 
     void viewScoreboard() { // prompt user to select view leaderboard/hierarchy
@@ -300,19 +303,15 @@ public:
         {
             cout << "Round " << i << ":" << endl;
             chooseQuestion();
+            
         }
-        // temporary code to show student list
-        for (int i = 0; i < studentList.getSize(); i++) {
-            Student student = studentList[i];
-            cout << "Student ID: " << student.id << ", Name: " << student.name << ", Score: " << student.score << endl;
-        }
+        newStudent.printScores();
         // viewScoreboard();
     }
 };
 
 int main() {
     Game game;
-    game.loadStudentData();
     game.loadQuestionData();
     game.setUpDecks();
     game.startGame();

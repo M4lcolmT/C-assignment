@@ -1,19 +1,49 @@
 #include <string>
+#include "ArrayList.hpp"
 using namespace std;
 
-struct Student {
-    string id;
-    string name;
+struct Score {
+    int questionID;
     int score;
 
-    Student(string tpNum = "", string n = "", int sc = 0) : id(tpNum), name(n), score(sc) {}
+    Score() : questionID(0), score(0) {}  // Default constructor
+    Score(int id, int score = 0) : questionID(id), score(score) {}
 };
 
+class Student {
+private:
+    string id;
+    string name;
+    ArrayList<Score> roundScores;
 
-void updateScore(Student& student, int questionScore, bool isDiscarded) {
-    if (isDiscarded) {
-        student.score += static_cast<int>(questionScore * 0.8);  // 80% of the original score
-    } else {
-        student.score += questionScore;  // Full score
+public:
+    Student(string tpNum = "", string n = "") : id(tpNum), name(n), roundScores() {}
+    
+    void updateScore(int questionID, int questionScore) {
+        Score roundScore = Score(questionID, questionScore);
+        roundScores.add(roundScore);
     }
-}
+
+    string getID() {
+        return id;
+    }
+
+    string getName() {
+        return name;
+    }
+
+    ArrayList<Score> getScores() {
+        return roundScores;
+    }
+
+    void printScores() {
+        int totalScore = 0; // Corrected variable name
+        for (int i = 0; i < roundScores.getSize(); i++) {
+            Score score = roundScores[i];
+            totalScore += score.score; 
+            cout << "Question ID: " << score.questionID << ", Score: " << score.score << endl;
+        }
+        cout << "Your total score is: " << totalScore << endl;
+    }
+};
+
