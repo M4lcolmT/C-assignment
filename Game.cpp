@@ -41,7 +41,7 @@ public:
         file.close();
     }
 
-    void loadQuestionData() { // working code - dynamicArray to store the questions
+    void loadQuestionData() {
         ifstream file("questions.csv");
         string line;
         if (!file.is_open()) {
@@ -51,19 +51,24 @@ public:
 
         while (getline(file, line)) {
             istringstream iss(line);
-            string idStr, category, questionText, option1, option2, option3, option4, correctAnswer;
+            string idStr, category, questionText, correctAnswer;
+            Vector<string> options;
+
             getline(iss, idStr, '|');
             getline(iss, category, '|');
             getline(iss, questionText, '|');
-            getline(iss, option1, '|');
-            getline(iss, option2, '|');
-            getline(iss, option3, '|');
-            getline(iss, option4, '|');
-            getline(iss, correctAnswer, '|');
+
+            string option;
+            while (getline(iss, option, '|')) {
+                options.push_back(option);
+            }
+
+            correctAnswer = options.at(options.getSize() - 1);
+            options.pop_back();
 
             int id = stoi(idStr);
 
-            questionList.push_back(Question(id, category, questionText, option1, option2, option3, option4, correctAnswer));
+            questionList.push_back(Question(id, category, questionText, options, correctAnswer));
         }
         file.close();
     }
