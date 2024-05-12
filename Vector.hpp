@@ -3,6 +3,7 @@
 using namespace std;
 
 template <typename T>
+
 class Vector {
 private:
     T* data;
@@ -13,22 +14,23 @@ public:
     Vector() {
         data = nullptr;
         size = 0;
+        capacity = 0;
     }
 
     void push_back(const T& value) {
-        if (size >= capacity) {
+        if (size == capacity) {
             size_t new_capacity = (capacity == 0) ? 1 : capacity * 2;
             T* new_data = new T[new_capacity];
-
+            
             for (size_t i = 0; i < size; ++i) {
                 new_data[i] = data[i];
             }
-
+            
             delete[] data;
             data = new_data;
             capacity = new_capacity;
         }
-
+        
         data[size] = value;
         size++;
     }
@@ -124,9 +126,6 @@ public:
     }
 
     bool isEmpty() const {
-        if (size == 0) {
-            return true;
-        }
-       return false;
+        return size == 0;
     }
 };
