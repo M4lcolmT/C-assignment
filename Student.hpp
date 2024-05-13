@@ -1,20 +1,27 @@
 #include <string>
-#include "Vector.hpp"
+#include "ArrayList.hpp"
 using namespace std;
+
+struct Score {
+    int questionID;
+    int score;
+
+    Score() : questionID(0), score(0) {}  // Default constructor
+    Score(int id, int score = 0) : questionID(id), score(score) {}
+};
 
 class Student {
 private:
     string id;
     string name;
-    Vector<int> roundScores;
-    int totalScore;
+    ArrayList<Score> roundScores;
 
 public:
-    Student(string tpNum = "", string n = "") : id(tpNum), name(n), roundScores(), totalScore(0) {}
+    Student(string tpNum = "", string n = "") : id(tpNum), name(n), roundScores() {}
     
-    void updateScore(int questionID, int score) {
-        roundScores.push_back(score);
-        totalScore += score;
+    void updateScore(int questionID, int questionScore) {
+        Score roundScore = Score(questionID, questionScore);
+        roundScores.add(roundScore);
     }
 
     string getID() {
@@ -25,20 +32,17 @@ public:
         return name;
     }
 
-    Vector<int> getScores() {
+    ArrayList<Score> getScores() {
         return roundScores;
     }
 
-    int getTotalScore() {
-        return totalScore;
-    }
-
     void printScores() {
-        cout << "Scores for student " << name << " (ID: " << id << "):" << endl;
-        for (size_t i = 0; i < roundScores.getSize(); i++) {
-            cout << "Round " << i + 1 << ": " << roundScores[i] << endl;
+        int totalScore = 0; // Corrected variable name
+        for (int i = 0; i < roundScores.getSize(); i++) {
+            Score score = roundScores[i];
+            totalScore += score.score; 
+            cout << "Question ID: " << score.questionID << ", Score: " << score.score << endl;
         }
-        cout << "Total score: " << totalScore << endl;
+        cout << "Your total score is: " << totalScore << endl;
     }
 };
-

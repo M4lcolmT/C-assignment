@@ -339,10 +339,10 @@ public:
 
 };
 
-int main() {
-    Game game;
-    game.loadQuestionData();
-    game.setUpDecks();
-    game.startGame();
-    return 0;
-}
+// int main() {
+//     Game game;
+//     game.loadQuestionData();
+//     game.setUpDecks();
+//     game.startGame();
+//     return 0;
+// }
