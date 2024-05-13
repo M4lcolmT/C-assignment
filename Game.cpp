@@ -23,21 +23,44 @@ private:
     Student newStudent;
 
 public:
-    void loadStudentData() { // working code - linkedlist for dynamically update the student's score.
+    void loadStudentData() {
         ifstream file("students.csv");
         string line;
+        
         if (!file.is_open()) {
             cerr << "Error opening students.csv file." << endl;
             return;
         }
+        
         while (getline(file, line)) {
             istringstream iss(line);
-            string id, name, score;
+            string id, name;
             getline(iss, id, '|');
             getline(iss, name, '|');
+            
             Student student(id, name);
-            studentList.append(student); 
+            
+            string scoreStr;
+            int totalScore = 0;
+            
+            while (getline(iss, scoreStr, '|')) {
+                int score = stoi(scoreStr);
+                totalScore += score;
+                student.updateScore(0, score); // Assuming questionID is not used
+            }
+            
+            // Verify if the total score matches the expected value
+            int expectedTotal;
+            if (getline(iss, scoreStr, '|')) {
+                expectedTotal = stoi(scoreStr);
+                if (totalScore != expectedTotal) {
+                    cerr << "Warning: Total score mismatch for student " << id << endl;
+                }
+            }
+            
+            studentList.append(student);
         }
+        
         file.close();
     }
 
@@ -76,30 +99,33 @@ public:
     void startGame() {
         int choice;
         cout << "     Trivial Flash Card Game     " << endl
-        << "<< --------------------------- >>" << endl
-        << "Would you like to play" << endl
-        << "1. Yes" << endl
-        << "2. No" << endl
-        << "Enter your choice: ";
+            << "<< --------------------------- >>" << endl
+            << "Would you like to play" << endl
+            << "1. Yes" << endl
+            << "2. No" << endl
+            << "Enter your choice: ";
         validateInput("playGame", choice);
+        
         if (choice == 1) {
             string id;
             string name;
-            ArrayList<Score> scores;
             cout << "Ready to play? Enter your student details below." << endl
-            << "TP number: ";
+                << "TP number: ";
             cin >> id;
             cout << "Name: ";
-            cin >> name;   
+            cin >> name;
             cin.clear();
-            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear the input stream 
+            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear the input stream
+            
             newStudent = Student(id, name);
             studentList.append(newStudent);
             repeatRound();
-        } else if (choice == 2) {
+        }
+        else if (choice == 2) {
             cout << "I guess you are not up for the challenge, pussy...";
         }
     }
+
 
     void setUpDecks() { // delegate the questions into unanswered and discarded decks
         random_device rd;
@@ -308,8 +334,9 @@ public:
             
         }
         newStudent.printScores();
-        // viewScoreboard();
+        viewScoreboard();
     }
+
 };
 
 int main() {
