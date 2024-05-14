@@ -11,41 +11,42 @@ LinkedList<Student> studentList;
 
 void loadStudentData() {
     ifstream file("students.csv");
-
     if (!file.is_open()) {
         cerr << "Error opening students.csv file." << endl;
         return;
     }
 
     string line;
-
     while (getline(file, line)) {
         istringstream iss(line);
-        Vector<string> fields;
-        string field;
+        string id, name;
+        getline(iss, id, '|');
+        getline(iss, name, '|');
 
-        while (getline(iss, field, '|')) {
-            fields.push_back(field);
-        }
-
-        if (fields.getSize() < 7) {
-            cerr << "Invalid line in CSV: " << line << endl;
-            continue;
-        }
-
-        string id = fields[0];
-        string name = fields[1];
         Student student(id, name);
 
-        for (int i = 2; i < fields.getSize(); i += 2) {
-            int questionID = stoi(fields[i]);
-            int score = stoi(fields[i + 1]);
-            student.updateScore(questionID, score);
+        string questionIdStr, scoreStr;
+        while (getline(iss, questionIdStr, '|') && getline(iss, scoreStr, '|')) {
+            int questionID, score;
+            try {
+                questionID = stoi(questionIdStr);
+                score = stoi(scoreStr);
+                student.updateScore(questionID, score);
+            } catch (const invalid_argument& e) {
+                cerr << "Invalid value in CSV: " << questionIdStr << " or " << scoreStr << endl;
+            }
         }
 
         studentList.append(student);
     }
+
     file.close();
+
+    // Print student scores after loading all the data
+    for (size_t i = 0; i < studentList.getSize(); i++) {
+        studentList[i].printScores();
+        cout << endl;
+    }
 }
 
 int main() {
