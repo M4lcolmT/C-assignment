@@ -337,7 +337,56 @@ public:
         viewScoreboard();
     }
 
-};
+    void showLeaderboard() {
+        studentList.sort(); // Sort the list before displaying
+        cout << "\nLeaderboard:\n";
+        cout << "Rank\tName\t\tTotal Score\n";
+        int rank = 1;
+        studentList.forEach([&rank](Student student) {
+            cout << rank++ << "\t" << student.getName() << "\t\t" << student.getTotalScore() << "\n";
+        });
+    }
+
+    void displayPage(int pageNumber, int itemsPerPage) {
+    int start = (pageNumber - 1) * itemsPerPage;
+    int end = start + itemsPerPage;
+    int currentIndex = 0;
+    
+    Node* current = studentList.getHead();
+    while (current != nullptr && currentIndex < end) {
+        if (currentIndex >= start) {
+            std::cout << current->data.getName() << " - " << current->data.getTotalScore() << std::endl;
+        }
+        current = current->next;
+        currentIndex++;
+    }
+}
+
+    void searchAndDisplayResults() {
+    std::string searchName; // Assuming you're searching by name
+    std::cout << "Enter name to search: ";
+    std::cin >> searchName;
+    
+    auto results = studentList.search([searchName](Student s) {
+        return s.getName() == searchName; // Simple case-sensitive search
+    });
+
+    results.sort([]( Student a, Student b) {
+        return a.getTotalScore() < b.getTotalScore(); // Sorting in ascending order
+    });
+
+    int pageNumber = 1;
+    displayPage(pageNumber, 5); // Display first page with 5 items per page
+}
+
+
+
+    
+
+    void showHierarchy() {
+    // Optionally, implement a different display method if hierarchy should look different
+    showLeaderboard(); // For simplicity, using the same as leaderboard
+}
 
 // int main() {
 //     Game game;
@@ -345,4 +394,5 @@ public:
 //     game.setUpDecks();
 //     game.startGame();
 //     return 0;
+
 // }
