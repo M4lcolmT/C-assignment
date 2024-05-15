@@ -29,7 +29,7 @@ public:
         return id;
     }
 
-    string getName() {
+    string getName() const {
         return name;
     }
 
@@ -37,7 +37,7 @@ public:
         return roundScores;
     }
 
-    int getTotalScore() {
+    int getTotalScore() const {
         return totalScore;
     }
 

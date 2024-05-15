@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <random>
+#include <iomanip>
 #include <algorithm>
 
 #include "Student.hpp"
@@ -25,43 +26,40 @@ private:
 public:
     void loadStudentData() {
         ifstream file("students.csv");
-        string line;
-        
         if (!file.is_open()) {
             cerr << "Error opening students.csv file." << endl;
             return;
         }
-        
+
+        string line;
         while (getline(file, line)) {
             istringstream iss(line);
             string id, name;
             getline(iss, id, '|');
             getline(iss, name, '|');
-            
+
             Student student(id, name);
-            
-            string scoreStr;
-            int totalScore = 0;
-            
-            while (getline(iss, scoreStr, '|')) {
-                int score = stoi(scoreStr);
-                totalScore += score;
-                student.updateScore(0, score); // Assuming questionID is not used
-            }
-            
-            // Verify if the total score matches the expected value
-            int expectedTotal;
-            if (getline(iss, scoreStr, '|')) {
-                expectedTotal = stoi(scoreStr);
-                if (totalScore != expectedTotal) {
-                    cerr << "Warning: Total score mismatch for student " << id << endl;
+
+            string questionIdStr, scoreStr;
+            while (getline(iss, questionIdStr, '|') && getline(iss, scoreStr, '|')) {
+                int questionID, score;
+                try {
+                    questionID = stoi(questionIdStr);
+                    score = stoi(scoreStr);
+                    student.updateScore(questionID, score);
+                } catch (const invalid_argument& e) {
+                    cerr << "Invalid value in CSV: " << questionIdStr << " or " << scoreStr << endl;
                 }
             }
-            
+
             studentList.append(student);
         }
-        
+
         file.close();
+        // for (int i = 0; i < studentList.getSize(); i++) {
+        //     Student student = studentList[i];
+        //     student.printScores();
+        // }
     }
 
     void loadQuestionData() {
@@ -115,7 +113,7 @@ public:
             cout << "Name: ";
             cin >> name;
             cin.clear();
-            cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear the input stream
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear the input stream
             
             newStudent = Student(id, name);
             studentList.append(newStudent);
@@ -337,62 +335,65 @@ public:
         viewScoreboard();
     }
 
-    void showLeaderboard() {
-        studentList.sort(); // Sort the list before displaying
-        cout << "\nLeaderboard:\n";
-        cout << "Rank\tName\t\tTotal Score\n";
-        int rank = 1;
-        studentList.forEach([&rank](Student student) {
-            cout << rank++ << "\t" << student.getName() << "\t\t" << student.getTotalScore() << "\n";
-        });
-    }
 
-    void displayPage(int pageNumber, int itemsPerPage) {
-    int start = (pageNumber - 1) * itemsPerPage;
-    int end = start + itemsPerPage;
-    int currentIndex = 0;
-    
-    Node* current = studentList.getHead();
-    while (current != nullptr && currentIndex < end) {
-        if (currentIndex >= start) {
-            std::cout << current->data.getName() << " - " << current->data.getTotalScore() << std::endl;
+    void showLeaderboard() { // working code
+        studentList.sort();
+
+        const int pageSize = 20;  // Number of students per page
+        int totalPages = (studentList.getSize() + pageSize - 1) / pageSize;
+        int currentPage = 0;
+
+        while (true) {
+            int start = currentPage * pageSize;
+            int end = std::min(start + pageSize, studentList.getSize());
+
+            cout << "\nLeaderboard - Page " << (currentPage + 1) << " of " << totalPages << ":\n";
+            cout << setw(10) << left << "Rank"
+                << setw(15) << left << "ID"
+                << setw(25) << left << "Name"
+                << setw(15) << left << "Total Score" << endl;
+            cout << "---------------------------------------------------------\n";
+
+            for (int i = start; i < end; i++) {
+                Student student = studentList[i];
+                cout << setw(10) << left << (i + 1)
+                    << setw(15) << left << student.getID()
+                    << setw(25) << left << student.getName()
+                    << setw(15) << left << student.getTotalScore() << endl;
+            }
+
+            // Navigation
+            cout << "\nNavigation: [N]ext page, [P]revious page, [E]xit\n";
+            cout << "Enter choice: ";
+            char choice;
+            cin >> choice;
+
+            if (choice == 'N' || choice == 'n') {
+                if (currentPage < totalPages - 1) {
+                    currentPage++;
+                } else {
+                    cout << "This is the last page.\n";
+                }
+            } else if (choice == 'P' || choice == 'p') {
+                if (currentPage > 0) {
+                    currentPage--;
+                } else {
+                    cout << "This is the first page.\n";
+                }
+            } else if (choice == 'E' || choice == 'e') {
+                break;
+            }
         }
-        current = current->next;
-        currentIndex++;
     }
+
+};
+
+int main() {
+    Game game;
+    game.loadStudentData();
+    game.showLeaderboard();
+    // game.loadQuestionData();
+    // game.setUpDecks();
+    // game.startGame();
+    return 0;
 }
-
-    void searchAndDisplayResults() {
-    std::string searchName; // Assuming you're searching by name
-    std::cout << "Enter name to search: ";
-    std::cin >> searchName;
-    
-    auto results = studentList.search([searchName](Student s) {
-        return s.getName() == searchName; // Simple case-sensitive search
-    });
-
-    results.sort([]( Student a, Student b) {
-        return a.getTotalScore() < b.getTotalScore(); // Sorting in ascending order
-    });
-
-    int pageNumber = 1;
-    displayPage(pageNumber, 5); // Display first page with 5 items per page
-}
-
-
-
-    
-
-    void showHierarchy() {
-    // Optionally, implement a different display method if hierarchy should look different
-    showLeaderboard(); // For simplicity, using the same as leaderboard
-}
-
-// int main() {
-//     Game game;
-//     game.loadQuestionData();
-//     game.setUpDecks();
-//     game.startGame();
-//     return 0;
-
-// }

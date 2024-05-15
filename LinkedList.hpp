@@ -1,8 +1,3 @@
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-
 template <typename T>
 class LinkedList {
 private:
@@ -22,10 +17,10 @@ public:
     void append(const T& value) {
         Node* newNode = new Node(value);
         if (head == nullptr) {
-            head = tail = newNode; // If list is empty
+            head = tail = newNode;
         } else {
-            tail->next = newNode; // Append to end
-            tail = newNode;       // Move tail pointer
+            tail->next = newNode;
+            tail = newNode;
         }
         size++;
     }
@@ -33,10 +28,10 @@ public:
     void prepend(const T& value) {
         Node* newNode = new Node(value);
         if (head == nullptr) {
-            head = tail = newNode; // If list is empty
+            head = tail = newNode;
         } else {
-            newNode->next = head; // New node points to former head
-            head = newNode;       // Update head to new node
+            newNode->next = head;
+            head = newNode;
         }
         size++;
     }
@@ -56,46 +51,58 @@ public:
         return current->data;
     }
 
-    // Simple Bubble Sort using data's getTotalScore() method
-    void sort(std::function<bool(const T&, const T&)> comp) {
-    if (!head || !head->next) return; 
+    Node* merge(Node* left, Node* right) {
+        if (!left) return right;
+        if (!right) return left;
 
-    bool swapped;
-    do {
-        swapped = false;
-        Node* current = head;
-        Node* prev = nullptr;
-        Node* next = current->next;
-
-        while (next) {
-            if (comp(current->data, next->data)) {
-                std::swap(current->data, next->data);
-                swapped = true;
-            }
-            current = next;
-            next = next->next;
+        // Determine the head of the merged list
+        Node* head = nullptr;
+        if (left->data.getTotalScore() > right->data.getTotalScore()) {
+            head = left;
+            head->next = merge(left->next, right);
+        } else {
+            head = right;
+            head->next = merge(left, right->next);
         }
-    } while (swapped);
-}
-
-
-    void forEach(std::function<void(const T&)> func) {
-        Node* current = head;
-        while (current != nullptr) {
-            func(current->data);
-            current = current->next;
-        }
+        return head;
     }
 
-    LinkedList<T> search(std::function<bool(const T&)> predicate) {
-        LinkedList<T> results;
-        Node* current = head;
-        while (current != nullptr) {
-            if (predicate(current->data)) {
-                results.append(current->data);
-            }
-            current = current->next;
+    // Merge sort function
+    Node* mergeSort(Node* h) {
+        if (!h || !h->next) return h;
+
+        // Finding the middle of the list
+        Node* slow = h;
+        Node* fast = h->next;
+        while (fast && fast->next) {
+            slow = slow->next;
+            fast = fast->next->next;
         }
-        return results;
+        Node* mid = slow->next;
+        slow->next = nullptr;
+
+        // Recursively sort the two halves
+        Node* left = mergeSort(h);
+        Node* right = mergeSort(mid);
+
+        // Merge the sorted halves
+        return merge(left, right);
     }
+
+    // Public method to initiate the sort
+    void sort() {
+        head = mergeSort(head);
+    }
+
+    // LinkedList<T> search(std::function<bool(const T&)> predicate) {
+    //     LinkedList<T> result;
+    //     Node* current = head;
+    //     while (current != nullptr) {
+    //         if (predicate(current->data)) {
+    //             result.append(current->data);
+    //         }
+    //         current = current->next;
+    //     }
+    //     return result;
+    // }
 };
