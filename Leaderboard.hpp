@@ -38,8 +38,6 @@ private:
             return;
         }
 
-        // Custom display to match the provided image
-        out << "Top 30 Hierarchical Chart:\n\n";
 
         // Level 0
         out << "                                                                                                                       " << root->student.getName() << " (" << root->student.getTotalScore() << ")\n";
@@ -79,17 +77,15 @@ private:
             (root->left && root->left->right && (root->left->right->left || root->left->right->right)) ||
             (root->right && root->right->left && (root->right->left->left || root->right->left->right)) ||
             (root->right && root->right->right && (root->right->right->left || root->right->right->right))) {
-            out << "                               |                                                              |\n";
-            out << "               +---------------+---------------+                               +--------------+--------------+                                 +----------------+----------------+                                +----------------+----------------+\n";
-            out << "               |                               |                               |                             |\n";
-            out << "          " << (root->left && root->left->left && root->left->left->left ? root->left->left->left->student.getName() + " (" + to_string(root->left->left->left->student.getTotalScore()) + ")" : "                        ")
-                << "                     " << (root->left && root->left->left && root->left->left->right ? root->left->left->right->student.getName() + " (" + to_string(root->left->left->right->student.getTotalScore()) + ")" : "                        ")
-                << "                      " << (root->left && root->left->right && root->left->right->left ? root->left->right->left->student.getName() + " (" + to_string(root->left->right->left->student.getTotalScore()) + ")" : "                        ")
-                << "                    " << (root->left && root->left->right && root->left->right->right ? root->left->right->right->student.getName() + " (" + to_string(root->left->right->right->student.getTotalScore()) + ")" : "                        ")
-                << "                       " << (root->right && root->right->left && root->right->left->left ? root->right->left->left->student.getName() + " (" + to_string(root->right->left->left->student.getTotalScore()) + ")" : "                        ")
-                << "                        " << (root->right && root->right->left && root->right->left->right ? root->right->left->right->student.getName() + " (" + to_string(root->right->left->right->student.getTotalScore()) + ")" : "                        ")
-                << "                        " << (root->right && root->right->right && root->right->right->left ? root->right->right->left->student.getName() + " (" + to_string(root->right->right->left->student.getTotalScore()) + ")" : "                        ")
-                << "                      " << (root->right && root->right->right && root->right->right->right ? root->right->right->right->student.getName() + " (" + to_string(root->right->right->right->student.getTotalScore()) + ")" : "                        ") << "\n";
+            out << "              +----------------+---------------+                               +--------------+--------------+                                 +----------------+----------------+                                 +---------------+----------------+\n";
+            out << "           " << (root->left && root->left->left && root->left->left->left ? root->left->left->left->student.getName() + " (" + to_string(root->left->left->left->student.getTotalScore()) + ")" : "                    ")
+                << "                    " << (root->left && root->left->left && root->left->left->right ? root->left->left->right->student.getName() + " (" + to_string(root->left->left->right->student.getTotalScore()) + ")" : "                      ")
+                << "                      " << (root->left && root->left->right && root->left->right->left ? root->left->right->left->student.getName() + " (" + to_string(root->left->right->left->student.getTotalScore()) + ")" : "                      ")
+                << "                    " << (root->left && root->left->right && root->left->right->right ? root->left->right->right->student.getName() + " (" + to_string(root->left->right->right->student.getTotalScore()) + ")" : "                      ")
+                << "                      " << (root->right && root->right->left && root->right->left->left ? root->right->left->left->student.getName() + " (" + to_string(root->right->left->left->student.getTotalScore()) + ")" : "                      ")
+                << "                          " << (root->right && root->right->left && root->right->left->right ? root->right->left->right->student.getName() + " (" + to_string(root->right->left->right->student.getTotalScore()) + ")" : "                      ")
+                << "                      " << (root->right && root->right->right && root->right->right->left ? root->right->right->left->student.getName() + " (" + to_string(root->right->right->left->student.getTotalScore()) + ")" : "                      ")
+                << "                       " << (root->right && root->right->right && root->right->right->right ? root->right->right->right->student.getName() + " (" + to_string(root->right->right->right->student.getTotalScore()) + ")" : "                      ") << "\n";
         }
 
         // Level 4
@@ -101,10 +97,8 @@ private:
             (root->right && root->right->left && root->right->left->right && (root->right->left->right->left || root->right->left->right->right)) ||
             (root->right && root->right->right && root->right->right->left && (root->right->right->left->left || root->right->right->left->right)) ||
             (root->right && root->right->right && root->right->right->right && (root->right->right->right->left || root->right->right->right->right))) {
-            out << "              |                                |                               |                             |\n";
-            out << "              |                                |                               |                             |\n";
             out << "     +--------+---------+             +--------+---------+            +--------+---------+          +--------+---------+              +--------+---------+              +--------+---------+              +--------+---------+               +------+-------+\n";
-            out << "     |                  |             |                  |            |                  |          |                  |              |                  |              |                  |              |                  |               | \n";
+            out << "     |                  |             |                  |            |                  |          |                  |              |                  |              |                  |              |                  |               |               \n";
             out << (root->left && root->left->left && root->left->left->left && root->left->left->left->left ? root->left->left->left->left->student.getName() + " (" + to_string(root->left->left->left->left->student.getTotalScore()) + ")" : "           ")
                 << "     " << (root->left && root->left->left && root->left->left->left && root->left->left->left->right ? root->left->left->left->right->student.getName() + " (" + to_string(root->left->left->left->right->student.getTotalScore()) + ")" : "           ")
                 << "     " << (root->left && root->left->left && root->left->left->right && root->left->left->right->left ? root->left->left->right->left->student.getName() + " (" + to_string(root->left->left->right->left->student.getTotalScore()) + ")" : "           ")
