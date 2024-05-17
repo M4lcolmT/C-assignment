@@ -1,3 +1,6 @@
+#ifndef STUDENT_HPP
+#define STUDENT_HPP
+
 #include <string>
 #include "Vector.hpp"
 using namespace std;
@@ -49,3 +52,5 @@ public:
         cout << "Your total score is: " << totalScore << endl;
     }
 };
+
+#endif

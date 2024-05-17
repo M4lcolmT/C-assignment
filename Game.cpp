@@ -12,6 +12,7 @@
 #include "LinkedList.hpp"
 #include "Vector.hpp"
 #include "Stack.hpp"
+#include "Leaderboard.hpp"
 using namespace std;
 
 class Game {
@@ -384,6 +385,14 @@ public:
                 break;
             }
         }
+    }
+
+    void showHierarchy() {
+        vector<Student> students;
+        for (int i = 0; i < studentList.getSize(); ++i) {
+            students.push_back(studentList[i]);
+        }
+        Leaderboard::showHierarchy(students);
     }
 
 };
