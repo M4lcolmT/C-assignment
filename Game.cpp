@@ -392,7 +392,22 @@ public:
         for (int i = 0; i < studentList.getSize(); ++i) {
             students.push_back(studentList[i]);
         }
+
         Leaderboard::showHierarchy(students);
+        while (true) {
+            cout << "\nNavigation: [B]ack to Scoreboard, [E]xit\n";
+            cout << "Enter choice: ";
+            char choice;
+            cin >> choice;
+
+            if (choice == 'B' || choice == 'b') {
+                viewScoreboard();
+                break;
+            }
+            else if (choice == 'E' || choice == 'e') {
+                break;
+            }
+        }
     }
 
 };
