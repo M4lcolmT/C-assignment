@@ -337,55 +337,71 @@ public:
     }
 
 
-    void showLeaderboard() { // working code
-        studentList.sort();
+void showLeaderboard() {
+    char sortOrder;
+    cout << "Select sort order: [A]scending or [D]escending: ";
+    cin >> sortOrder;
 
-        const int pageSize = 20;  // Number of students per page
-        int totalPages = (studentList.getSize() + pageSize - 1) / pageSize;
-        int currentPage = 0;
+    if (sortOrder == 'A' || sortOrder == 'a') {
+        studentList.sort([](const Student& a, const Student& b) {
+            return a.getTotalScore() < b.getTotalScore(); // Ascending order
+        });
+    } else {
+        studentList.sort([](const Student& a, const Student& b) {
+            return a.getTotalScore() > b.getTotalScore(); // Descending order
+        });
+    }
+    studentList.sort();
 
-        while (true) {
-            int start = currentPage * pageSize;
-            int end = std::min(start + pageSize, studentList.getSize());
+    const int pageSize = 20;  // Number of students per page
+    int totalPages = (studentList.getSize() + pageSize - 1) / pageSize;
+    int currentPage = 0;
 
-            cout << "\nLeaderboard - Page " << (currentPage + 1) << " of " << totalPages << ":\n";
-            cout << setw(10) << left << "Rank"
-                << setw(15) << left << "ID"
-                << setw(25) << left << "Name"
-                << setw(15) << left << "Total Score" << endl;
-            cout << "---------------------------------------------------------\n";
+    while (true) {
+        int start = currentPage * pageSize;
+        int end = std::min(start + pageSize, studentList.getSize());
 
-            for (int i = start; i < end; i++) {
-                Student student = studentList[i];
-                cout << setw(10) << left << (i + 1)
-                    << setw(15) << left << student.getID()
-                    << setw(25) << left << student.getName()
-                    << setw(15) << left << student.getTotalScore() << endl;
+        cout << "\nLeaderboard - Page " << (currentPage + 1) << " of " << totalPages << ":\n";
+        cout << setw(10) << left << "Rank"
+             << setw(15) << left << "ID"
+             << setw(25) << left << "Name"
+             << setw(15) << left << "Total Score" << endl;
+        cout << "---------------------------------------------------------\n";
+
+        for (int i = start; i < end; i++) {
+            Student student = studentList.get(i);
+            cout << setw(10) << left << (i + 1)
+                 << setw(15) << left << student.getID()
+                 << setw(25) << left << student.getName()
+                 << setw(15) << left << student.getTotalScore() << endl;
+        }
+
+        // Navigation
+        cout << "\nNavigation: [N]ext page, [P]revious page, [S]earch, [E]xit\n";
+        cout << "Enter choice: ";
+        char choice;
+        cin >> choice;
+
+        if (choice == 'N' || choice == 'n') {
+            if (currentPage < totalPages - 1) {
+                currentPage++;
+            } else {
+                cout << "This is the last page.\n";
             }
-
-            // Navigation
-            cout << "\nNavigation: [N]ext page, [P]revious page, [E]xit\n";
-            cout << "Enter choice: ";
-            char choice;
-            cin >> choice;
-
-            if (choice == 'N' || choice == 'n') {
-                if (currentPage < totalPages - 1) {
-                    currentPage++;
-                } else {
-                    cout << "This is the last page.\n";
-                }
-            } else if (choice == 'P' || choice == 'p') {
-                if (currentPage > 0) {
-                    currentPage--;
-                } else {
-                    cout << "This is the first page.\n";
-                }
-            } else if (choice == 'E' || choice == 'e') {
-                break;
+        } else if (choice == 'P' || choice == 'p') {
+            if (currentPage > 0) {
+                currentPage--;
+            } else {
+                cout << "This is the first page.\n";
             }
+        } else if (choice == 'S' || choice == 's') {
+            searchStudent();
+        } else if (choice == 'E' || choice == 'e') {
+            break;
         }
     }
+}
+
 
     void showHierarchy() {
         vector<Student> students;
@@ -408,6 +424,26 @@ public:
                 break;
             }
         }
+    }
+
+    void searchStudent() {
+    std::string studentID;
+    std::cout << "Enter the student number to search: ";
+    std::cin >> studentID;
+
+    Student* student = studentList.search(studentID);
+    if (student) {
+        std::cout << "\nStudent found:\n";
+        std::cout << setw(15) << left << "ID"
+                  << setw(25) << left << "Name"
+                  << setw(15) << left << "Total Score" << std::endl;
+        std::cout << "-----------------------------------------\n";
+        std::cout << setw(15) << left << student->getID()
+                  << setw(25) << left << student->getName()
+                  << setw(15) << left << student->getTotalScore() << std::endl;
+    } else {
+        std::cout << "Student with ID " << studentID << " not found." << std::endl;
+         }
     }
 
 };

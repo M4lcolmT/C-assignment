@@ -57,15 +57,15 @@ public:
 
         // Determine the head of the merged list
         Node* head = nullptr;
-        if (left->data.getTotalScore() > right->data.getTotalScore()) {
-            head = left;
-            head->next = merge(left->next, right);
-        } else {
-            head = right;
-            head->next = merge(left, right->next);
-        }
-        return head;
+        if (comp(left->data, right->data)) {
+        head = left;
+        head->next = merge(left->next, right, comp);
+    } else {
+        head = right;
+        head->next = merge(left, right->next, comp);
     }
+    return head;
+}
 
     // Merge sort function
     Node* mergeSort(Node* h) {
@@ -82,16 +82,40 @@ public:
         slow->next = nullptr;
 
         // Recursively sort the two halves
-        Node* left = mergeSort(h);
-        Node* right = mergeSort(mid);
+        Node* left = mergeSort(h,comp);
+        Node* right = mergeSort(mid,comp);
 
         // Merge the sorted halves
-        return merge(left, right);
+        return merge(left, right,comp);
+    }
+
+     T& get(int index) const {
+        if (index < 0 || index >= size) throw std::out_of_range("Index out of range.");
+        Node* current = head;
+        for (int i = 0; i < index; i++) {
+            current = current->next;
+        }
+        return current->data;
+    }
+
+    T* search(const std::string& id) {
+        Node* current = head;
+        while (current) {
+            if (current->data.getID() == id) {
+                return &(current->data);
+            }
+            current = current->next;
+        }
+        return nullptr;
     }
 
     // Public method to initiate the sort
     void sort() {
-        head = mergeSort(head);
+        head = mergeSort(head,comp);
+        tail = head;
+        if (tail) {
+        while (tail->next) tail = tail->next;
+        }
     }
 
     // LinkedList<T> search(std::function<bool(const T&)> predicate) {
