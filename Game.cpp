@@ -2,10 +2,10 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <vector>
 #include <random>
 #include <iomanip>
 #include <algorithm>
+#include <queue>
 
 #include "Student.hpp"
 #include "Question.hpp"
@@ -14,6 +14,200 @@
 #include "Stack.hpp"
 #include "Leaderboard.hpp"
 using namespace std;
+
+class TreeNode {
+public:
+    Student student;
+    TreeNode* left;
+    TreeNode* right;
+
+    TreeNode(const Student& student) : student(student), left(nullptr), right(nullptr) {}
+};
+
+class Tree {
+private:
+    TreeNode* root;
+
+    void displayTree(TreeNode* root) const {
+        if (!root) return;
+
+        queue<TreeNode*> q;
+        q.push(root);
+
+        int level = 0;
+        while (!q.empty()) {
+            int count = q.size();
+            cout << "Level " << level++ << ": ";
+            while (count--) {
+                TreeNode* node = q.front();
+                q.pop();
+                cout << node->student.getName() << " (" << node->student.getTotalScore() << ") ";
+                if (node->left) q.push(node->left);
+                if (node->right) q.push(node->right);
+            }
+            cout << endl;
+        }
+    }
+
+    void displayHorizontalTree(TreeNode* root, ostream& out) const {
+        if (!root) return;
+
+        queue<TreeNode*> q;
+        q.push(root);
+
+        Vector<Vector<TreeNode*>> levels;
+        while (!q.empty()) {
+            int count = q.size();
+            Vector<TreeNode*> level;
+            while (count--) {
+                TreeNode* node = q.front();
+                q.pop();
+                level.push_back(node);
+                if (node) {
+                    q.push(node->left);
+                    q.push(node->right);
+                } else {
+                    q.push(nullptr);
+                    q.push(nullptr);
+                }
+            }
+            bool allNull = true;
+            for (size_t i = 0; i < level.getSize(); ++i) {
+                if (level[i] != nullptr) {
+                    allNull = false;
+                    break;
+                }
+            }
+            if (allNull) break;
+            levels.push_back(level);
+        }
+
+        // Center the root node
+        out << "                                                                                                                       " << root->student.getName() << " (" << root->student.getTotalScore() << ")\n";
+
+        // Level 1
+        if (root->left || root->right) {
+            out << "                                                                                                                            |\n";
+            out << "                                                                                                                            |\n";
+            out << "                                                           +----------------------------------------------------------------+-------------------------------------------------------------------+\n";
+            out << "                                                           |                                                                                                                                    |\n";
+            out << "                                                       " << (root->left ? root->left->student.getName() + " (" + to_string(root->left->student.getTotalScore()) + ")" : "                         ")
+                << "                                                                                                                           " << (root->right ? root->right->student.getName() + " (" + to_string(root->right->student.getTotalScore()) + ")" : "                         ") << "\n";
+        }
+
+        // Level 2
+        if ((root->left && (root->left->left || root->left->right)) || (root->right && (root->right->left || root->right->right))) {
+            out << "                                                           |                                                                                                                                    |\n";
+            out << "                                                           |                                                                                                                                    |\n";
+            out << "                               +-----------------------------+--------------------------------+                                                                 +-------------------------------+----------------------------------+\n";
+            out << "                               |                                                              |                                                                 |                                                                  |\n";
+            out << "                            " << (root->left && root->left->left ? root->left->left->student.getName() + " (" + to_string(root->left->left->student.getTotalScore()) + ")" : "           ")
+                << "                                                    " << (root->left && root->left->right ? root->left->right->student.getName() + " (" + to_string(root->left->right->student.getTotalScore()) + ")" : "           ")
+                << "                                                         " << (root->right && root->right->left ? root->right->left->student.getName() + " (" + to_string(root->right->left->student.getTotalScore()) + ")" : "           ")
+                << "                                                      " << (root->right && root->right->right ? root->right->right->student.getName() + " (" + to_string(root->right->right->student.getTotalScore()) + ")" : "           ") << "\n";
+        }
+
+        // Level 3
+        if ((root->left && root->left->left && (root->left->left->left || root->left->left->right)) ||
+            (root->left && root->left->right && (root->left->right->left || root->left->right->right)) ||
+            (root->right && root->right->left && (root->right->left->left || root->right->left->right)) ||
+            (root->right && root->right->right && (root->right->right->left || root->right->right->right))) {
+            out << "              +----------------+---------------+                               +--------------+--------------+                                 +----------------+----------------+                                 +---------------+----------------+\n";
+            out << "           " << (root->left && root->left->left && root->left->left->left ? root->left->left->left->student.getName() + " (" + to_string(root->left->left->left->student.getTotalScore()) + ")" : "                    ")
+                << "                    " << (root->left && root->left->left && root->left->left->right ? root->left->left->right->student.getName() + " (" + to_string(root->left->left->right->student.getTotalScore()) + ")" : "                      ")
+                << "                      " << (root->left && root->left->right && root->left->right->left ? root->left->right->left->student.getName() + " (" + to_string(root->left->right->left->student.getTotalScore()) + ")" : "                      ")
+                << "                    " << (root->left && root->left->right && root->left->right->right ? root->left->right->right->student.getName() + " (" + to_string(root->left->right->right->student.getTotalScore()) + ")" : "                      ")
+                << "                      " << (root->right && root->right->left && root->right->left->left ? root->right->left->left->student.getName() + " (" + to_string(root->right->left->left->student.getTotalScore()) + ")" : "                      ")
+                << "                          " << (root->right && root->right->left && root->right->left->right ? root->right->left->right->student.getName() + " (" + to_string(root->right->left->right->student.getTotalScore()) + ")" : "                      ")
+                << "                      " << (root->right && root->right->right && root->right->right->left ? root->right->right->left->student.getName() + " (" + to_string(root->right->right->left->student.getTotalScore()) + ")" : "                      ")
+                << "                       " << (root->right && root->right->right && root->right->right->right ? root->right->right->right->student.getName() + " (" + to_string(root->right->right->right->student.getTotalScore()) + ")" : "                      ") << "\n";
+        }
+
+        // Level 4
+        if ((root->left && root->left->left && root->left->left->left && (root->left->left->left->left || root->left->left->left->right)) ||
+            (root->left && root->left->left && root->left->left->right && (root->left->left->right->left || root->left->left->right->right)) ||
+            (root->left && root->right && root->right->left && (root->right->left->left || root->right->left->right)) ||
+            (root->left && root->right && root->right->right && (root->right->right->left || root->right->right->right))) {
+            out << "     +--------+---------+             +--------+---------+            +--------+---------+          +--------+---------+              +--------+---------+              +--------+---------+              +--------+---------+               +------+-------+\n";
+            out << "     |                  |             |                  |            |                  |          |                  |              |                  |              |                  |              |                  |               |               \n";
+            out << (root->left && root->left->left && root->left->left->left && root->left->left->left->left ? root->left->left->left->left->student.getName() + " (" + to_string(root->left->left->left->left->student.getTotalScore()) + ")" : "           ")
+                << "     " << (root->left && root->left->left && root->left->left->left && root->left->left->left->right ? root->left->left->left->right->student.getName() + " (" + to_string(root->left->left->left->right->student.getTotalScore()) + ")" : "           ")
+                << "     " << (root->left && root->left->left && root->left->left->right && root->left->left->right->left ? root->left->left->right->left->student.getName() + " (" + to_string(root->left->left->right->left->student.getTotalScore()) + ")" : "           ")
+                << "        " << (root->left && root->left->left && root->left->left->right && root->left->left->right->right ? root->left->left->right->right->student.getName() + " (" + to_string(root->left->left->right->right->student.getTotalScore()) + ")" : "           ")
+                << "    " << (root->left && root->left->right && root->left->right->left && root->left->right->left->left ? root->left->right->left->left->student.getName() + " (" + to_string(root->left->right->left->left->student.getTotalScore()) + ")" : "           ")
+                << "    " << (root->left && root->left->right && root->left->right->left && root->left->right->left->right ? root->left->right->left->right->student.getName() + " (" + to_string(root->left->right->left->right->student.getTotalScore()) + ")" : "           ")
+                << "    " << (root->left && root->left->right && root->left->right->right && root->left->right->right->left ? root->left->right->right->left->student.getName() + " (" + to_string(root->left->right->right->left->student.getTotalScore()) + ")" : "           ")
+                << "     " << (root->left && root->left->right && root->left->right->right && root->left->right->right->right ? root->left->right->right->right->student.getName() + " (" + to_string(root->left->right->right->right->student.getTotalScore()) + ")" : "           ")
+                << "     " << (root->right && root->right->left && root->right->left->left && root->right->left->left->left ? root->right->left->left->left->student.getName() + " (" + to_string(root->right->left->left->left->student.getTotalScore()) + ")" : "           ")
+                << "       " << (root->right && root->right->left && root->right->left->left && root->right->left->left->right ? root->right->left->left->right->student.getName() + " (" + to_string(root->right->left->left->right->student.getTotalScore()) + ")" : "           ")
+                << "   " << (root->right && root->right->left && root->right->left->right && root->right->left->right->left ? root->right->left->right->left->student.getName() + " (" + to_string(root->right->left->right->left->student.getTotalScore()) + ")" : "           ")
+                << "        " << (root->right && root->right->left && root->right->left->right && root->right->left->right->right ? root->right->left->right->right->student.getName() + " (" + to_string(root->right->left->right->right->student.getTotalScore()) + ")" : "           ")
+                << "     " << (root->right && root->right->right && root->right->right->left && root->right->right->left->left ? root->right->right->left->left->student.getName() + " (" + to_string(root->right->right->left->left->student.getTotalScore()) + ")" : "           ")
+                << "         " << (root->right && root->right->right && root->right->right->left && root->right->right->left->right ? root->right->right->left->right->student.getName() + " (" + to_string(root->right->right->left->right->student.getTotalScore()) + ")" : "           ")
+                << "    " << (root->right && root->right->right && root->right->right->right && root->right->right->right->left ? root->right->right->right->left->student.getName() + " (" + to_string(root->right->right->right->left->student.getTotalScore()) + ")" : "           ")
+                << "    " << (root->right && root->right->right && root->right->right->right && root->right->right->right->right ? root->right->right->right->right->student.getName() + " (" + to_string(root->right->right->right->right->student.getTotalScore()) + ")" : "           ") << "\n";
+        }
+    }
+
+    void deleteTree(TreeNode* node) {
+        if (node == nullptr) return;
+        deleteTree(node->left);
+        deleteTree(node->right);
+        delete node;
+    }
+
+    TreeNode* find(TreeNode* node, const string& id) const {
+        if (node == nullptr)
+            return nullptr;
+        if (id == node->student.getID())
+            return node;
+        if (id < node->student.getID())
+            return find(node->left, id);
+        return find(node->right, id);
+    }
+
+public:
+    Tree() : root(nullptr) {}
+    ~Tree() {
+        deleteTree(root);
+    }
+
+    TreeNode* find(const string& id) const {
+        return find(root, id);
+    }
+
+    void buildTree(LinkedList<Student>& students) {
+        if (students.getSize() == 0) return;
+        root = new TreeNode(students.get(0));
+
+        queue<TreeNode*> q;
+        q.push(root);
+        size_t index = 1;
+
+        while (!q.empty() && index < students.getSize()) {
+            TreeNode* current = q.front();
+            q.pop();
+
+            if (index < students.getSize()) {
+                current->left = new TreeNode(students.get(index++));
+                q.push(current->left);
+            }
+
+            if (index < students.getSize()) {
+                current->right = new TreeNode(students.get(index++));
+                q.push(current->right);
+            }
+        }
+    }
+
+    void displayTree() const {
+        displayTree(root);
+    }
+
+    void displayHorizontalTree() const {
+        displayHorizontalTree(root, cout);
+    }
+};
 
 class Game {
 private:
@@ -321,7 +515,7 @@ public:
         if (choice == 1) {
             showLeaderboard();
         } else if (choice == 2) {
-            //showhierarchy();
+            showHierarchy();
         } 
     }
 
@@ -403,14 +597,24 @@ public:
 
 
     void showHierarchy() {
-        vector<Student> students;
-        for (int i = 0; i < studentList.getSize(); ++i) {
-            students.push_back(studentList[i]);
+        studentList.sort([](const Student& a, const Student& b) {
+            return a.getTotalScore() > b.getTotalScore(); 
+        });
+
+        int topSize = min(studentList.getSize(), 30);
+        LinkedList<Student> top30List;
+        for (int i = 0; i < topSize; ++i) {
+            top30List.append(studentList.get(i));
         }
 
-        Leaderboard::showHierarchy(students);
+        Tree tree;
+        tree.buildTree(top30List);
+
+        cout << "Displaying hierarchy of top 30 students:" << endl;
+        tree.displayHorizontalTree();
+
         while (true) {
-            cout << "\nNavigation: [B]ack to Scoreboard, [E]xit\n";
+            cout << "\nOptions: [B]ack to Scoreboard, [C]heck student ID, [E]xit\n";
             cout << "Enter choice: ";
             char choice;
             cin >> choice;
@@ -418,13 +622,33 @@ public:
             if (choice == 'B' || choice == 'b') {
                 viewScoreboard();
                 break;
-            }
-            else if (choice == 'E' || choice == 'e') {
+            } else if (choice == 'C' || choice == 'c') {
+                string searchID;
+                cout << "Enter the student ID to check if they are in the top 30: ";
+                cin >> searchID;
+
+                TreeNode* foundStudent = tree.find(searchID);
+                if (foundStudent) {
+                    cout << "Student " << searchID << " is in the top 30 winners!" << endl;
+                } else {
+                    // Check if the ID exists in the overall student list
+                    Student* student = studentList.search(searchID);
+                    if (student) {
+                        cout << "Student " << searchID << " exists but is not in the top 30 winners." << endl;
+                    } else {
+                        cout << "Student ID " << searchID << " is invalid." << endl;
+                    }
+                }
+            } else if (choice == 'E' || choice == 'e') {
                 break;
+            } else {
+                cout << "Invalid choice! Please enter B, C, or E." << endl;
+                cin.clear();// Clear the error flag on cin
+                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard the invalid input
             }
         }
     }
-
+    
     void searchStudent() { // working code!
         string studentID;
         cout << "Enter the student number to search: ";
