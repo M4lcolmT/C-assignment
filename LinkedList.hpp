@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <random>
+#include <algorithm>
 #include <functional>
 
 template <typename T>
@@ -18,6 +20,7 @@ private:
     Node* tail;
     int size;
 
+    // Custom merge function for linked list nodes
     Node* merge(Node* left, Node* right, std::function<bool(const T&, const T&)> comp) {
         if (!left) return right;
         if (!right) return left;
@@ -33,6 +36,7 @@ private:
         return head;
     }
 
+    // Merge sort function
     Node* mergeSort(Node* h, std::function<bool(const T&, const T&)> comp) {
         if (!h || !h->next) return h;
 
@@ -100,6 +104,26 @@ public:
         return current->data;
     }
 
+    T* search(const std::string& id) {
+        Node* current = head;
+        while (current) {
+            if (current->data.getID() == id) {
+                return &(current->data);
+            }
+            current = current->next;
+        }
+        return nullptr;
+    }
+
+    // Public method to initiate the sort
+    void sort(std::function<bool(const T&, const T&)> comp) {
+        head = mergeSort(head, comp);
+        tail = head;
+        if (tail) {
+            while (tail->next) tail = tail->next;
+        }
+    }
+
     T popBack() {
         if (!head) throw std::out_of_range("List is empty.");
 
@@ -124,74 +148,32 @@ public:
         return data;
     }
 
-    T* search(const std::string& id) {
-        Node* current = head;
-        while (current) {
-            if (current->data.getID() == id) {
-                return &(current->data);
-            }
-            current = current->next;
-        }
-        return nullptr;
-    }
+    // Shuffle method for the linked list
+    void shuffle() {
+        if (getSize() <= 1) return; // No need to shuffle if the list has 0 or 1 element
 
-    void sort(std::function<bool(const T&, const T&)> comp) {
-        head = mergeSort(head, comp);
-        tail = head;
-        if (tail) {
-            while (tail->next) tail = tail->next;
-        }
-    }
-
-    // // Fisher-Yates shuffle directly on the linked list
-    // void fisherYatesShuffle(LinkedList& list) {
-    //     int n = list.getSize();
-    //     random_device rd;
-    //     mt19937 gen(rd());
-
-    //     Node* currentNode = list.head;
-    //     for (int i = 0; i < n - 1 && currentNode != nullptr; i++) {
-    //         uniform_int_distribution<int> dist(i, n - 1);
-    //         int j = dist(gen);
-
-    //         // Get the node at index j
-    //         Node* nodeJ = list.getNodeAt(j);
-
-    //         // Swap data of the current node and node at index j
-    //         swap(currentNode->data, nodeJ->data);
-
-    //         // Move to the next node
-    //         currentNode = currentNode->next;
-    //     }
-    // }
-
-    class Iterator {
-    private:
-        Node* node;
-
-    public:
-        Iterator(Node* node) : node(node) {}
-
-        T& operator*() {
-            return node->data;
+        // Convert linked list to array
+        int size = getSize();
+        T* array = new T[size];
+        for (int i = 0; i < size; ++i) {
+            array[i] = get(i);
         }
 
-        Iterator& operator++() {
-            node = node->next;
-            return *this;
+        // Shuffle array using Fisher-Yates algorithm
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        for (int i = size - 1; i > 0; --i) {
+            std::uniform_int_distribution<> dis(0, i);
+            int j = dis(gen);
+            std::swap(array[i], array[j]);
         }
 
-        bool operator!=(const Iterator& other) const {
-            return node != other.node;
+        // Convert array back to linked list
+        for (int i = 0; i < size; ++i) {
+            get(i) = array[i];
         }
-    };
 
-    Iterator begin() {
-        return Iterator(head);
-    }
-
-    Iterator end() {
-        return Iterator(nullptr);
+        delete[] array;
     }
 };
 

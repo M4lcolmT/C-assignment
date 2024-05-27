@@ -24,7 +24,7 @@ using namespace std;
 class Game {
 private:
     DoublyLinkedList<Student> studentList;
-    Vector<Question> questionList; // decide should use linkedlist or what...
+    LinkedList<Question> questionList; // decide should use linkedlist or what...
     Stack<Question, 5> discardedCards;
     Stack<Question, 295> unansweredCards;
     LinkedList<Question> answeredCards;
@@ -96,7 +96,7 @@ public:
 
             int id = stoi(idStr);
 
-            questionList.push_back(Question(id, category, questionText, options, correctAnswer));
+            questionList.append(Question(id, category, questionText, options, correctAnswer));
         }
         file.close();
     }
@@ -132,31 +132,24 @@ public:
     }
 
 
-    void setUpDecks() { // delegate the questions into unanswered and discarded decks
-        random_device rd;
-        mt19937 gen(rd());
-        
-        // Shuffle the vector 
-        shuffle(questionList.begin(), questionList.end(), gen); 
+    void setUpDecks() {
+        // Shuffle the linked list
+        questionList.shuffle();
 
         // Add 5 questions from questionList to discardedCards
         for (int i = 0; i < 5 && i < questionList.getSize(); i++) {
-            discardedCards.push(questionList[i]);
+            discardedCards.push(questionList.get(i));
         }
         cout << "total count: " << questionList.getSize() << endl;
         cout << "discarded count: " << discardedCards.getSize() << endl;
 
         // Add remaining questions from questionList to unansweredCards
         for (int i = 5; i < questionList.getSize(); i++) {
-            unansweredCards.push(questionList[i]);
+            unansweredCards.push(questionList.get(i));
         }
 
         cout << "unanswered count: " << unansweredCards.getSize() << endl;
     }
-
-    // void updateScore() {
-
-    // }
     
     int countCharAnswer(string& formattedUserAnswer, string& formattedCardAnswer) {
         int numCorrect = 0;
@@ -328,7 +321,9 @@ public:
             showLeaderboard();
         } else if (choice == 2) {
             showHierarchy();
-        } 
+        } else if (choice == 3) {
+            cout << "Good done student!" << endl;
+        }
     }
 
     void repeatRound() { // 3 rounds then calculate the total score for each student
@@ -340,87 +335,88 @@ public:
             
         }
         newStudent -> printScores();
+        studentList.append(*newStudent);
         viewScoreboard();
     }
 
 
     void showLeaderboard() {
-    char sortOrder;
-    cout << "Select sort order: [A]scending or [D]escending: ";
-    cin >> sortOrder;
+        char sortOrder;
+        cout << "Select sort order: [A]scending or [D]escending: ";
+        cin >> sortOrder;
 
-    if (sortOrder == 'A' || sortOrder == 'a') {
-        studentList.sort([](const Student& a, const Student& b) {
-            return a.getTotalScore() < b.getTotalScore(); // Ascending order
-        });
-    } else {
-        studentList.sort([](const Student& a, const Student& b) {
-            return a.getTotalScore() > b.getTotalScore(); // Descending order
-        });
-    }
+        if (sortOrder == 'A' || sortOrder == 'a') {
+            studentList.sort([](const Student& a, const Student& b) {
+                return a.getTotalScore() < b.getTotalScore(); // Ascending order
+            });
+        } else {
+            studentList.sort([](const Student& a, const Student& b) {
+                return a.getTotalScore() > b.getTotalScore(); // Descending order
+            });
+        }
 
-    const int pageSize = 20;  // Number of students per page
-    int totalPages = (studentList.getSize() + pageSize - 1) / pageSize;
-    int currentPage = 0;
+        const int pageSize = 20;  // Number of students per page
+        int totalPages = (studentList.getSize() + pageSize - 1) / pageSize;
+        int currentPage = 0;
 
-    while (true) {
-        int start = currentPage * pageSize;
-        int end = min(start + pageSize, studentList.getSize());
+        while (true) {
+            int start = currentPage * pageSize;
+            int end = min(start + pageSize, studentList.getSize());
 
-        cout << "\nLeaderboard - Page " << (currentPage + 1) << " of " << totalPages << ":\n";
-        cout << setw(10) << left << "Rank"
-            << setw(15) << left << "ID"
-            << setw(25) << left << "Name"
-            << setw(15) << left << "R1 (QID:Score)"
-            << setw(15) << left << "R2 (QID:Score)"
-            << setw(15) << left << "R3 (QID:Score)"
-            << setw(15) << left << "Total Score" << endl;
-        cout << "-------------------------------------------------------------------------------------------------------------------\n";
+            cout << "\nLeaderboard - Page " << (currentPage + 1) << " of " << totalPages << ":\n";
+            cout << setw(10) << left << "Rank"
+                << setw(15) << left << "ID"
+                << setw(25) << left << "Name"
+                << setw(15) << left << "R1 (QID:Score)"
+                << setw(15) << left << "R2 (QID:Score)"
+                << setw(15) << left << "R3 (QID:Score)"
+                << setw(15) << left << "Total Score" << endl;
+            cout << "-------------------------------------------------------------------------------------------------------------------\n";
 
-        for (int i = start; i < end; i++) {
-            Student student = studentList.get(i);
-            cout << setw(10) << left << (i + 1)
-                << setw(15) << left << student.getID()
-                << setw(25) << left << student.getName();
+            for (int i = start; i < end; i++) {
+                Student student = studentList.get(i);
+                cout << setw(10) << left << (i + 1)
+                    << setw(15) << left << student.getID()
+                    << setw(25) << left << student.getName();
 
-            LinkedList<Score> scores = student.getScores();
-            for (int round = 0; round < 3; round++) {
-                if (round < scores.getSize()) {
-                    Score score = scores[round];
-                    cout << setw(15) << left << score.getQuestionID() << ":" << score.getScore();
-                } else {
-                    cout << setw(15) << left << "N/A";
+                LinkedList<Score> scores = student.getScores();
+                for (int round = 0; round < 3; round++) {
+                    if (round < scores.getSize()) {
+                        Score score = scores[round];
+                        cout << score.getQuestionID() << ":" << score.getScore() << setw(15) << right;
+                    } else {
+                        cout << setw(15) << left << "N/A";
+                    }
                 }
+
+                cout << student.getTotalScore() << setw(15) << left << endl;
             }
 
-            cout << setw(15) << left << student.getTotalScore() << endl;
-        }
+            // Navigation
+            cout << "\nNavigation: [N]ext page, [P]revious page, [S]earch, [E]xit\n";
+            cout << "Enter choice: ";
+            char choice;
+            cin >> choice;
 
-        // Navigation
-        cout << "\nNavigation: [N]ext page, [P]revious page, [S]earch, [E]xit\n";
-        cout << "Enter choice: ";
-        char choice;
-        cin >> choice;
-
-        if (choice == 'N' || choice == 'n') {
-            if (currentPage < totalPages - 1) {
-                currentPage++;
-            } else {
-                cout << "This is the last page.\n";
+            if (choice == 'N' || choice == 'n') {
+                if (currentPage < totalPages - 1) {
+                    currentPage++;
+                } else {
+                    cout << "This is the last page.\n";
+                }
+            } else if (choice == 'P' || choice == 'p') {
+                if (currentPage > 0) {
+                    currentPage--;
+                } else {
+                    cout << "This is the first page.\n";
+                }
+            } else if (choice == 'S' || choice == 's') {
+                searchStudent();
+            } else if (choice == 'E' || choice == 'e') {
+                viewScoreboard();
             }
-        } else if (choice == 'P' || choice == 'p') {
-            if (currentPage > 0) {
-                currentPage--;
-            } else {
-                cout << "This is the first page.\n";
-            }
-        } else if (choice == 'S' || choice == 's') {
-            searchStudent();
-        } else if (choice == 'E' || choice == 'e') {
-            break;
         }
     }
-}
 
 
     void showHierarchy() {
@@ -501,6 +497,7 @@ public:
 int main() {
     Game game;
     game.loadStudentData();
+    // game.showLeaderboard();
     game.loadQuestionData();
     game.setUpDecks();
     game.startGame();
