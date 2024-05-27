@@ -1,3 +1,6 @@
+#ifndef ARRAYLIST_HPP
+#define ARRAYLIST_HPP
+
 #include <iostream>
 #include <stdexcept>
 
@@ -54,5 +57,13 @@ public:
     size_t getSize() const {
         return length;
     }
+
+    const T& get(size_t index) const {
+        if (index >= length) {
+            throw std::out_of_range("Index out of range");
+        }
+        return data[index];
+    }
 };
 
+#endif

@@ -2,7 +2,7 @@
 #define STUDENT_HPP
 
 #include <string>
-#include "Vector.hpp"
+#include "LinkedList.hpp"
 using namespace std;
 
 struct Score {
@@ -11,20 +11,28 @@ struct Score {
 
     Score() : questionID(0), score(0) {}
     Score(int id, int s) : questionID(id), score(s) {}
+
+    int getQuestionID() const {
+        return questionID;
+    }
+
+    int getScore() const {
+        return score;
+    }
 };
 
 class Student {
 private:
     string id;
     string name;
-    Vector<Score> roundScores;
+    LinkedList<Score> roundScores;
     int totalScore;
 
 public:
     Student(string tpNum = "", string n = "") : id(tpNum), name(n), roundScores(), totalScore(0) {}
     
     void updateScore(int questionID, int score) {
-        roundScores.push_back(Score(questionID, score));
+        roundScores.append(Score(questionID, score));
         totalScore += score;
     }
 
@@ -36,7 +44,7 @@ public:
         return name;
     }
 
-    Vector<Score> getScores() {
+    LinkedList<Score> getScores() const{
         return roundScores;
     }
 

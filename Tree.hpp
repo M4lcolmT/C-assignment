@@ -1,3 +1,6 @@
+#ifndef TREE_HPP
+#define TREE_HPP
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -5,9 +8,10 @@
 #include <random>
 #include <iomanip>
 #include <algorithm>
-#include <queue>
 
 #include "Student.hpp"
+#include "Queue.hpp"
+#include "ArrayList.hpp"
 using namespace std;
 
 class TreeNode {
@@ -26,15 +30,15 @@ private:
     void displayTree(TreeNode* root) const {
         if (!root) return;
 
-        queue<TreeNode*> q;
+        Queue<TreeNode*> q;
         q.push(root);
 
         int level = 0;
-        while (!q.empty()) {
-            int count = q.size();
+        while (!q.isEmpty()) {
+            int count = q.getSize();
             cout << "Level " << level++ << ": ";
             while (count--) {
-                TreeNode* node = q.front();
+                TreeNode* node = q.getFront();
                 q.pop();
                 cout << node->student.getName() << " (" << node->student.getTotalScore() << ") ";
                 if (node->left) q.push(node->left);
@@ -47,17 +51,17 @@ private:
     void displayHorizontalTree(TreeNode* root, ostream& out) const {
         if (!root) return;
 
-        queue<TreeNode*> q;
+        Queue<TreeNode*> q;
         q.push(root);
 
-        Vector<Vector<TreeNode*>> levels;
-        while (!q.empty()) {
-            int count = q.size();
-            Vector<TreeNode*> level;
+        LinkedList<LinkedList<TreeNode*>> levels;
+        while (!q.isEmpty()) {
+            int count = q.getSize();
+            LinkedList<TreeNode*> level;
             while (count--) {
-                TreeNode* node = q.front();
+                TreeNode* node = q.getFront();
                 q.pop();
-                level.push_back(node);
+                level.append(node);
                 if (node) {
                     q.push(node->left);
                     q.push(node->right);
@@ -74,7 +78,7 @@ private:
                 }
             }
             if (allNull) break;
-            levels.push_back(level);
+            levels.append(level);
         }
 
         // Center the root node
@@ -171,7 +175,7 @@ public:
         return find(root, id);
     }
 
-    void buildTree(LinkedList<Student>& students) {
+    void buildTree(ArrayList<Student>& students) {
         if (students.getSize() == 0) return;
         root = new TreeNode(students.get(0));
 
@@ -203,3 +207,5 @@ public:
         displayHorizontalTree(root, cout);
     }
 };
+
+#endif
