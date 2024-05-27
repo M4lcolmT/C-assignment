@@ -63,10 +63,6 @@ public:
         }
 
         file.close();
-        // for (int i = 0; i < studentList.getSize(); i++) {
-        //     Student student = studentList[i];
-        //     student.printScores();
-        // }
     }
 
     void loadQuestionData() {
@@ -90,8 +86,6 @@ public:
             while (getline(iss, option, '|')) {
                 options.append(option);
             }
-
-            // Extract the correct answer from the options list
             correctAnswer = options.popBack();
 
             int id = stoi(idStr);
@@ -124,10 +118,11 @@ public:
             cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear the input stream
             
             newStudent = new Student(id, name);
+            cout << "I hope you are ready! The game shall begin..." << endl;
             repeatRound();
         }
         else if (choice == 2) {
-            cout << "I guess you are not up for the challenge, pussy...";
+            cout << "I guess you are not up for the challenge...";
         }
     }
 
@@ -140,15 +135,11 @@ public:
         for (int i = 0; i < 5 && i < questionList.getSize(); i++) {
             discardedCards.push(questionList.get(i));
         }
-        cout << "total count: " << questionList.getSize() << endl;
-        cout << "discarded count: " << discardedCards.getSize() << endl;
 
         // Add remaining questions from questionList to unansweredCards
         for (int i = 5; i < questionList.getSize(); i++) {
             unansweredCards.push(questionList.get(i));
         }
-
-        cout << "unanswered count: " << unansweredCards.getSize() << endl;
     }
     
     int countCharAnswer(string& formattedUserAnswer, string& formattedCardAnswer) {
@@ -285,7 +276,8 @@ public:
         cout << "Here is a sneak peek of the discarded question ;)" << endl
         << "if you choose a discarded question, you only receive 80 percent of the total marks..." << endl;
         Question discardedCard = discardedCards.pop(); 
-        cout << "Discarded Question: " << discardedCard.text << endl;
+        cout << "Discarded Question: " << endl 
+        << discardedCard.text << endl;
         int choice;
         cout << "Would you like to choose a Discarded/Unanswered question?" << endl <<
         "1. Discarded" << endl <<
@@ -299,11 +291,11 @@ public:
         } 
     } 
 
-    void putBackCard(Question answeredCard) { // logic not set yet, how does the discarded cards work?
+    void putBackCard(Question answeredCard) { 
         answeredCards.prepend(answeredCard);
-        cout << "Unanswered cards length: " << unansweredCards.getSize() << endl;
-        cout << "Discarded cards length: " << discardedCards.getSize() << endl;
-        cout << "Answered cards length: " << answeredCards.getSize() << endl;
+        // cout << "Unanswered cards length: " << unansweredCards.getSize() << endl;
+        // cout << "Discarded cards length: " << discardedCards.getSize() << endl;
+        // cout << "Answered cards length: " << answeredCards.getSize() << endl;
         if (discardedCards.getSize() != 5) {
             Question q = unansweredCards.pop();
             discardedCards.push(q);
@@ -315,26 +307,27 @@ public:
         cout << "View Score:" << endl 
         << "1. Leaderboard" << endl 
         << "2. Rank hierarchy" << endl 
+        << "3. Exit Game" << endl 
         << "Enter your choice: ";
-        validateInput("viewRanking", choice);
+        cin >> choice;
         if (choice == 1) {
             showLeaderboard();
         } else if (choice == 2) {
             showHierarchy();
         } else if (choice == 3) {
-            cout << "Good done student!" << endl;
+            cout << "Good done student! Play again next time..." << endl;
+            exit(0);
         }
     }
 
     void repeatRound() { // 3 rounds then calculate the total score for each student
         for (size_t i = 1; i < 4; i++)
         {
-            cout << "Round " << i << ":" << endl;
+            cout << endl << "ROUND " << i << ":" << endl;
             chooseQuestion();
-            cout << "round total score: " << newStudent -> getTotalScore() << endl;
-            
         }
-        newStudent -> printScores();
+        // newStudent -> printScores();
+        cout << endl << "Congratulations!!! Would you like to see how well you did ;) ?" << endl;
         studentList.append(*newStudent);
         viewScoreboard();
     }
@@ -366,7 +359,7 @@ public:
             cout << "\nLeaderboard - Page " << (currentPage + 1) << " of " << totalPages << ":\n";
             cout << setw(10) << left << "Rank"
                 << setw(15) << left << "ID"
-                << setw(25) << left << "Name"
+                << setw(20) << left << "Name"
                 << setw(15) << left << "R1 (QID:Score)"
                 << setw(15) << left << "R2 (QID:Score)"
                 << setw(15) << left << "R3 (QID:Score)"
@@ -377,13 +370,16 @@ public:
                 Student student = studentList.get(i);
                 cout << setw(10) << left << (i + 1)
                     << setw(15) << left << student.getID()
-                    << setw(25) << left << student.getName();
+                    << setw(20) << left << student.getName();
 
                 LinkedList<Score> scores = student.getScores();
                 for (int round = 0; round < 3; round++) {
                     if (round < scores.getSize()) {
                         Score score = scores[round];
-                        cout << score.getQuestionID() << ":" << score.getScore() << setw(15) << right;
+                        string qid = to_string(score.getQuestionID());
+                        string rscore = to_string(score.getScore());
+                        string roundResults = "Q"+qid+":"+rscore;
+                        cout << setw(15) << left << roundResults;
                     } else {
                         cout << setw(15) << left << "N/A";
                     }
@@ -393,7 +389,7 @@ public:
             }
 
             // Navigation
-            cout << "\nNavigation: [N]ext page, [P]revious page, [S]earch, [E]xit\n";
+            cout << "\nNavigation: [N]ext page, [P]revious page, [S]earch, [R]eturn\n";
             cout << "Enter choice: ";
             char choice;
             cin >> choice;
@@ -412,7 +408,7 @@ public:
                 }
             } else if (choice == 'S' || choice == 's') {
                 searchStudent();
-            } else if (choice == 'E' || choice == 'e') {
+            } else if (choice == 'R' || choice == 'r') {
                 viewScoreboard();
             }
         }
@@ -433,19 +429,16 @@ public:
         Tree tree;
         tree.buildTree(top30List);
 
-        cout << "Displaying hierarchy of top 30 students:" << endl;
+        cout << "\nDisplaying hierarchy of top 30 students:" << endl;
         tree.displayHorizontalTree();
 
         while (true) {
-            cout << "\nOptions: [B]ack to Scoreboard, [C]heck student ID, [E]xit\n";
+            cout << "\nNavigation: [S]earch, [R]eturn\n";
             cout << "Enter choice: ";
             char choice;
             cin >> choice;
 
-            if (choice == 'B' || choice == 'b') {
-                viewScoreboard();
-                break;
-            } else if (choice == 'C' || choice == 'c') {
+             if (choice == 'S' || choice == 's') {
                 string searchID;
                 cout << "Enter the student ID to check if they are in the top 30: ";
                 cin >> searchID;
@@ -462,10 +455,11 @@ public:
                         cout << "Student ID " << searchID << " is invalid." << endl;
                     }
                 }
-            } else if (choice == 'E' || choice == 'e') {
+            } else if (choice == 'R' || choice == 'r') {
                 viewScoreboard();
+                break;
             } else {
-                cout << "Invalid choice! Please enter B, C, or E." << endl;
+                cout << "Invalid choice! Please enter S or E." << endl;
                 cin.clear();// Clear the error flag on cin
                 cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard the invalid input
             }
@@ -482,22 +476,38 @@ public:
             cout << "\nStudent found:\n";
             cout << setw(15) << left << "ID"
                     << setw(25) << left << "Name"
+                    << setw(15) << left << "R1 (QID:Score)"
+                    << setw(15) << left << "R2 (QID:Score)"
+                    << setw(15) << left << "R3 (QID:Score)"
                     << setw(15) << left << "Total Score" << endl;
-            cout << "---------------------------------------------------\n";
+            cout << "-------------------------------------------------------------------------------------------------------------------\n";
             cout << setw(15) << left << student->getID()
-                    << setw(25) << left << student->getName()
-                    << setw(15) << left << student->getTotalScore() << endl;
+                    << setw(25) << left << student->getName();
+
+            LinkedList<Score> scores = student->getScores();
+            for (int round = 0; round < 3; round++) {
+                if (round < scores.getSize()) {
+                    Score score = scores[round];
+                    string qid = to_string(score.getQuestionID());
+                    string rscore = to_string(score.getScore());
+                    string roundResults = "Q"+qid+":"+rscore;
+                    cout << setw(15) << left << roundResults;
+                } else {
+                    cout << setw(15) << left << "N/A";
+                }
+            }
+
+            cout << setw(15) << left << student->getTotalScore();
         } else {
             cout << "Student with ID " << studentID << " not found." << endl;
-            }
+            searchStudent();
         }
-
-    };
+    }
+};
 
 int main() {
     Game game;
     game.loadStudentData();
-    // game.showLeaderboard();
     game.loadQuestionData();
     game.setUpDecks();
     game.startGame();
