@@ -1,5 +1,4 @@
-#ifndef STUDENT_HPP
-#define STUDENT_HPP
+#pragma once
 
 #include <string>
 #include "LinkedList.hpp"
@@ -61,5 +60,3 @@ public:
         cout << "Your total score is: " << totalScore << endl;
     }
 };
-
-#endif

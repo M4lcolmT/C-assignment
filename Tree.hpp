@@ -1,5 +1,4 @@
-#ifndef TREE_HPP
-#define TREE_HPP
+#pragma once
 
 #include <iostream>
 #include <fstream>
@@ -208,4 +207,3 @@ public:
     }
 };
 
-#endif

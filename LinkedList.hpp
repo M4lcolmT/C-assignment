@@ -1,5 +1,4 @@
-#ifndef LINKEDLIST_HPP
-#define LINKEDLIST_HPP
+#pragma once
 
 #include <iostream>
 #include <stdexcept>
@@ -125,5 +124,3 @@ public:
         delete[] array;
     }
 };
-
-#endif

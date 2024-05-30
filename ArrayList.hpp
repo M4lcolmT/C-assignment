@@ -1,5 +1,4 @@
-#ifndef ARRAYLIST_HPP
-#define ARRAYLIST_HPP
+#pragma once
 
 #include <iostream>
 #include <stdexcept>
@@ -49,5 +48,3 @@ public:
         return data[index];
     }
 };
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef QUESTION_HPP
-#define QUESTION_HPP
+#pragma once
 
 #include <iostream>
 #include <string>
@@ -19,5 +18,3 @@ public:
     Question(int id, string category, string text, LinkedList<string> options, string correctAnswers)
         : id(id), category(category), text(text), options(options), correctAnswers(correctAnswers) {}
 };
-
-#endif

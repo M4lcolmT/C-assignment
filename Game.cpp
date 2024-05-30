@@ -1,5 +1,5 @@
-#ifndef GAME_HPP
-#define GAME_HPP
+#pragma once
+
 
 #include <iostream>
 #include <fstream>
@@ -529,5 +529,3 @@ int main() {
     game.startGame();
     return 0;
 }
-
-#endif

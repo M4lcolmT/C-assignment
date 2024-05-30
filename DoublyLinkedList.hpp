@@ -18,40 +18,44 @@ private:
     Node* tail;
     int size;
 
-
-    // Custom merge function for linked list nodes
-    Node* merge(Node* left, Node* right, function<bool(const T&, const T&)> comp) {
-        if (!left) return right;
-        if (!right) return left;
-
-        Node* head = nullptr;
-        if (comp(left->data, right->data)) {
-            head = left;
-            head->next = merge(left->next, right, comp);
-        } else {
-            head = right;
-            head->next = merge(left, right->next, comp);
-        }
-        return head;
-    }
-
-    // Merge sort function
-    Node* mergeSort(Node* h, function<bool(const T&, const T&)> comp) {
-        if (!h || !h->next) return h;
-
-        Node* slow = h;
-        Node* fast = h->next;
-        while (fast && fast->next) {
-            slow = slow->next;
+    Node* split(Node* head) {
+        Node* fast = head;
+        Node* slow = head;
+        while (fast->next && fast->next->next) {
             fast = fast->next->next;
+            slow = slow->next;
         }
         Node* mid = slow->next;
         slow->next = nullptr;
+        return mid;
+    }
 
-        Node* left = mergeSort(h, comp);
-        Node* right = mergeSort(mid, comp);
+    Node* merge(Node* left, Node* right, function<bool(const T&, const T&)> comp) {
+        if (!left) return right;
+        if (!right) return left;
+        
+        if (comp(left->data, right->data)) {
+            left->next = merge(left->next, right, comp);
+            left->next->prev = left;
+            left->prev = nullptr;
+            return left;
+        } else {
+            right->next = merge(left, right->next, comp);
+            right->next->prev = right;
+            right->prev = nullptr;
+            return right;
+        }
+    }
 
-        return merge(left, right, comp);
+    Node* mergeSort(Node* node, function<bool(const T&, const T&)> comp) {
+        if (!node || !node->next) return node;
+
+        Node* second = split(node);
+
+        node = mergeSort(node, comp);
+        second = mergeSort(second, comp);
+
+        return merge(node, second, comp);
     }
 
 public:
@@ -101,7 +105,6 @@ public:
         }
     }
 
-
     T* search(const string& id) {
         Node* current = head;
         while (current) {
@@ -111,5 +114,14 @@ public:
             current = current->next;
         }
         return nullptr;
+    }
+
+    void printList() const {
+        Node* current = head;
+        while (current) {
+            cout << current->data << " "; // Assumes that T has an overloaded operator<<
+            current = current->next;
+        }
+        cout << endl;
     }
 };
