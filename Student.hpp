@@ -31,7 +31,8 @@ private:
 public:
     Student(string tpNum = "", string n = "") : id(tpNum), name(n), roundScores(), totalScore(0) {}
     
-    void updateScore(int questionID, int score) {
+    // to update the student score struct with question id and round score
+    void updateScore(int questionID, int score) { 
         roundScores.append(Score(questionID, score));
         totalScore += score;
     }
@@ -55,7 +56,7 @@ public:
     void printScores() {
         cout << id << " " << name << endl;
         for (size_t i = 0; i < roundScores.getSize(); i++) {
-            cout << "Question ID: " << roundScores[i].questionID << ", Score: " << roundScores[i].score << endl;
+            cout << "Question ID: " << roundScores.get(i).questionID << ", Score: " << roundScores.get(i).score << endl;
         }
         cout << "Your total score is: " << totalScore << endl;
     }

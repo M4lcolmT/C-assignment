@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <stdexcept>
+using namespace std;
 
 template<typename T>
 class ArrayList {
@@ -12,10 +13,10 @@ private:
     size_t length;   // Current number of elements in the list
 
     void resize() {
-        size_t newCapacity = (capacity == 0) ? 1 : std::min(capacity * 2, size_t(101));
+        size_t newCapacity = (capacity == 0) ? 1 : min(capacity * 2, size_t(101));
         T* newData = new T[newCapacity];
         for (size_t i = 0; i < length; i++) {
-            newData[i] = std::move(data[i]); // Use move assignment for efficiency
+            newData[i] = move(data[i]); 
         }
         delete[] data;
         data = newData;
@@ -37,30 +38,13 @@ public:
         data[length++] = value;
     }
 
-    void set(size_t index, const T& value) {
-        if (index >= length) {
-            throw std::out_of_range("Index out of range");
-        }
-        data[index] = value;
-    }
-
-    T& operator[](size_t index) {
-        if (index >= length) throw std::out_of_range("Index out of range");
-        return data[index];
-    }
-
-    const T& operator[](size_t index) const {
-        if (index >= length) throw std::out_of_range("Index out of range");
-        return data[index];
-    }
-
     size_t getSize() const {
         return length;
     }
 
     const T& get(size_t index) const {
         if (index >= length) {
-            throw std::out_of_range("Index out of range");
+            throw out_of_range("Index out of range");
         }
         return data[index];
     }

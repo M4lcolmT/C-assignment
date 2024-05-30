@@ -35,17 +35,6 @@ public:
         return stack[topIndex];
     }
 
-    void traverse() {
-        if (isEmpty()) {
-            cout << "Stack is empty !! " << endl;
-        }
-        else {
-            for (int i = topIndex; i >= 0; i--) {
-                cout << stack[i] << endl;
-            }
-        }
-    }
-
     bool isEmpty() {
         return topIndex == -1;
     }

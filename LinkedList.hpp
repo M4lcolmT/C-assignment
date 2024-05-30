@@ -6,7 +6,7 @@
 #include <random>
 #include <algorithm>
 #include <functional>
-
+using namespace std;
 template <typename T>
 class LinkedList {
 private:
@@ -19,45 +19,12 @@ private:
     Node* head;
     Node* tail;
     int size;
-
-    // Custom merge function for linked list nodes
-    Node* merge(Node* left, Node* right, std::function<bool(const T&, const T&)> comp) {
-        if (!left) return right;
-        if (!right) return left;
-
-        Node* head = nullptr;
-        if (comp(left->data, right->data)) {
-            head = left;
-            head->next = merge(left->next, right, comp);
-        } else {
-            head = right;
-            head->next = merge(left, right->next, comp);
-        }
-        return head;
-    }
-
-    // Merge sort function
-    Node* mergeSort(Node* h, std::function<bool(const T&, const T&)> comp) {
-        if (!h || !h->next) return h;
-
-        Node* slow = h;
-        Node* fast = h->next;
-        while (fast && fast->next) {
-            slow = slow->next;
-            fast = fast->next->next;
-        }
-        Node* mid = slow->next;
-        slow->next = nullptr;
-
-        Node* left = mergeSort(h, comp);
-        Node* right = mergeSort(mid, comp);
-
-        return merge(left, right, comp);
-    }
+    
 
 public:
     LinkedList() : head(nullptr), tail(nullptr), size(0) {}
 
+    // add data at the end of the linked list
     void append(const T& value) {
         Node* newNode = new Node(value);
         if (head == nullptr) {
@@ -69,6 +36,7 @@ public:
         size++;
     }
 
+    // add data at the start of the linked list
     void prepend(const T& value) {
         Node* newNode = new Node(value);
         if (head == nullptr) {
@@ -84,19 +52,8 @@ public:
         return size;
     }
 
-    T& operator[](int index) {
-        if (index < 0 || index >= size) {
-            throw std::out_of_range("Index out of range.");
-        }
-        Node* current = head;
-        for (int i = 0; i < index; i++) {
-            current = current->next;
-        }
-        return current->data;
-    }
-
     T& get(int index) const {
-        if (index < 0 || index >= size) throw std::out_of_range("Index out of range.");
+        if (index < 0 || index >= size) throw out_of_range("Index out of range.");
         Node* current = head;
         for (int i = 0; i < index; i++) {
             current = current->next;
@@ -104,7 +61,7 @@ public:
         return current->data;
     }
 
-    T* search(const std::string& id) {
+    T* search(const string& id) {
         Node* current = head;
         while (current) {
             if (current->data.getID() == id) {
@@ -115,17 +72,9 @@ public:
         return nullptr;
     }
 
-    // Public method to initiate the sort
-    void sort(std::function<bool(const T&, const T&)> comp) {
-        head = mergeSort(head, comp);
-        tail = head;
-        if (tail) {
-            while (tail->next) tail = tail->next;
-        }
-    }
-
+    
     T popBack() {
-        if (!head) throw std::out_of_range("List is empty.");
+        if (!head) throw out_of_range("List is empty.");
 
         if (head == tail) {
             T data = head->data;
@@ -160,12 +109,12 @@ public:
         }
 
         // Shuffle array using Fisher-Yates algorithm
-        std::random_device rd;
-        std::mt19937 gen(rd());
+        random_device rd;
+        mt19937 gen(rd());
         for (int i = size - 1; i > 0; --i) {
-            std::uniform_int_distribution<> dis(0, i);
+            uniform_int_distribution<> dis(0, i);
             int j = dis(gen);
-            std::swap(array[i], array[j]);
+            swap(array[i], array[j]);
         }
 
         // Convert array back to linked list

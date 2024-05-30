@@ -72,7 +72,7 @@ private:
             }
             bool allNull = true;
             for (size_t i = 0; i < level.getSize(); ++i) {
-                if (level[i] != nullptr) {
+                if (level.get(i) != nullptr) {
                     allNull = false;
                     break;
                 }

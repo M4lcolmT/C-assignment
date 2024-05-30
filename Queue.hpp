@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdexcept>
+using namespace std;
 
 template <typename T>
 class Queue {
@@ -47,13 +48,13 @@ public:
             delete temp;
             size--;
         } else {
-            throw std::out_of_range("Queue is empty. Cannot pop.");
+            throw out_of_range("Queue is empty. Cannot pop.");
         }
     }
 
     T& getFront() {
         if (!front) {
-            throw std::out_of_range("Queue is empty. Cannot get front.");
+            throw out_of_range("Queue is empty. Cannot get front.");
         }
         return front->data;
     }

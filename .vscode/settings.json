@@ -63,6 +63,9 @@
         "ranges": "cpp",
         "span": "cpp",
         "stack": "cpp",
-        "xstddef": "cpp"
+        "xstddef": "cpp",
+        "list": "cpp",
+        "xhash": "cpp",
+        "queue": "cpp"
     }
 }

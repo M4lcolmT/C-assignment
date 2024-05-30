@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 #include <functional>
+using namespace std;
 
 template <typename T>
 class DoublyLinkedList {
@@ -16,6 +17,42 @@ private:
     Node* head;
     Node* tail;
     int size;
+
+
+    // Custom merge function for linked list nodes
+    Node* merge(Node* left, Node* right, function<bool(const T&, const T&)> comp) {
+        if (!left) return right;
+        if (!right) return left;
+
+        Node* head = nullptr;
+        if (comp(left->data, right->data)) {
+            head = left;
+            head->next = merge(left->next, right, comp);
+        } else {
+            head = right;
+            head->next = merge(left, right->next, comp);
+        }
+        return head;
+    }
+
+    // Merge sort function
+    Node* mergeSort(Node* h, function<bool(const T&, const T&)> comp) {
+        if (!h || !h->next) return h;
+
+        Node* slow = h;
+        Node* fast = h->next;
+        while (fast && fast->next) {
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+        Node* mid = slow->next;
+        slow->next = nullptr;
+
+        Node* left = mergeSort(h, comp);
+        Node* right = mergeSort(mid, comp);
+
+        return merge(left, right, comp);
+    }
 
 public:
     DoublyLinkedList() : head(nullptr), tail(nullptr), size(0) {}
@@ -46,7 +83,7 @@ public:
 
     T& get(int index) {
         if (index < 0 || index >= size) {
-            throw std::out_of_range("Index out of range.");
+            throw out_of_range("Index out of range.");
         }
         Node* current = head;
         for (int i = 0; i < index; ++i) {
@@ -55,32 +92,17 @@ public:
         return current->data;
     }
 
-    void forEach(std::function<void(const T&)> callback) const {
-        Node* current = head;
-        while (current) {
-            callback(current->data);
-            current = current->next;
+    // Public method to initiate the sort
+    void sort(function<bool(const T&, const T&)> comp) {
+        head = mergeSort(head, comp);
+        tail = head;
+        if (tail) {
+            while (tail->next) tail = tail->next;
         }
     }
 
-    void sort(std::function<bool(const T&, const T&)> comp) {
-        if (!head || !head->next) return;
 
-        bool swapped;
-        do {
-            swapped = false;
-            Node* current = head;
-            while (current && current->next) {
-                if (comp(current->next->data, current->data)) {
-                    std::swap(current->data, current->next->data);
-                    swapped = true;
-                }
-                current = current->next;
-            }
-        } while (swapped);
-    }
-
-    T* search(const std::string& id) {
+    T* search(const string& id) {
         Node* current = head;
         while (current) {
             if (current->data.getID() == id) {
@@ -89,50 +111,5 @@ public:
             current = current->next;
         }
         return nullptr;
-    }
-
-    class Iterator {
-    private:
-        Node* node;
-
-    public:
-        Iterator(Node* node) : node(node) {}
-
-        T& operator*() {
-            return node->data;
-        }
-
-        Iterator& operator++() {
-            node = node->next;
-            return *this;
-        }
-
-        Iterator& operator--() {
-            node = node->prev;
-            return *this;
-        }
-
-        bool operator!=(const Iterator& other) const {
-            return node != other.node;
-        }
-    };
-
-    Iterator begin() {
-        return Iterator(head);
-    }
-
-    Iterator end() {
-        return Iterator(nullptr);
-    }
-
-    Iterator find(const std::string& id) {
-        Node* current = head;
-        while (current) {
-            if (current->data.getID() == id) {
-                return Iterator(current);
-            }
-            current = current->next;
-        }
-        return end();
     }
 };

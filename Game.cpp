@@ -13,20 +13,20 @@
 #include "Student.hpp"
 #include "Question.hpp"
 #include "LinkedList.hpp"
-#include "Vector.hpp"
 #include "Stack.hpp"
 #include "Tree.hpp"
 #include "DoublyLinkedList.hpp"
 #include "ArrayList.hpp"
+#include "Queue.hpp"
 using namespace std;
 
 
 class Game {
 private:
     DoublyLinkedList<Student> studentList;
-    LinkedList<Question> questionList; // decide should use linkedlist or what...
-    Stack<Question, 5> discardedCards;
-    Stack<Question, 295> unansweredCards;
+    LinkedList<Question> questionList; 
+    Queue<Question> discardedCards; // follows FIFO order
+    Stack<Question, 295> unansweredCards; // follows LIFO order
     LinkedList<Question> answeredCards;
     Student* newStudent;
 
@@ -126,7 +126,6 @@ public:
         }
     }
 
-
     void setUpDecks() {
         // Shuffle the linked list
         questionList.shuffle();
@@ -162,35 +161,45 @@ public:
         return result;
     }
 
-    void validateInput(const string& inputType, int& choice) { // check user input whether is 1 or 2
+    // validate the input from user
+    void validateInput(const string& inputType, int& choice) {
         bool validInput = false;
-        
-        do {
+
+        while (!validInput) {
             cin >> choice;
-            
-            if (choice == 1 || choice == 2) {
-                validInput = true;
-            } else {
-                if (inputType == "chooseQuestion") {
-                    cout << "Invalid input! Please enter 1 for discarded or 2 for unanswered questions: ";
-                } else if (inputType == "answerQuestion") {
-                    cout << "Invalid input! Please enter 1 to accept or 2 to decline: ";
-                } else if (inputType == "playGame") {
-                    cout << "Invalid input! Please enter 1 for YES or 2 for NO: ";
-                } else if (inputType == "viewRanking") {
-                    cout << "Invalid input! Please enter 1 to view leaderboard or 2 to view hierarchy: ";
+
+            if (inputType == "viewRanking") {
+                if (choice == 1 || choice == 2 || choice == 3) {
+                    validInput = true;
+                } else {
+                    cout << "Invalid input! Please enter 1 to view leaderboard, 2 to view hierarchy, or 3 to exit game: ";
                 }
+            } else {
+                if (choice == 1 || choice == 2) {
+                    validInput = true;
+                } else {
+                    if (inputType == "chooseQuestion") {
+                        cout << "Invalid input! Please enter 1 for discarded or 2 for unanswered questions: ";
+                    } else if (inputType == "answerQuestion") {
+                        cout << "Invalid input! Please enter 1 to accept or 2 to decline: ";
+                    } else if (inputType == "playGame") {
+                        cout << "Invalid input! Please enter 1 for YES or 2 for NO: ";
+                    }
+                }
+            }
+
+            if (!validInput) {
                 cin.clear();
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
             }
-        } while (!validInput);
+        }
     }
 
 
     void answerDiscardedQuestion(Question card) {
         cout << "Question " << card.id << ": " << card.text << endl;
         for (size_t i = 0; i < card.options.getSize(); i++) {
-            cout << card.options[i] << endl;
+            cout << card.options.get(i) << endl;
         }
         int choice;
         cout << "Do you accept the question? If you decline, you will receive 0 score for this round..." << endl
@@ -219,11 +228,10 @@ public:
                 cout << "Score for this question: 0" << endl;
             }
             newStudent -> updateScore(card.id, questionScore);
-
+            discardedCards.pop();
         } else if (choice == 2) {
             cout << "Question declined. No score awarded for this round." << endl;
             newStudent -> updateScore(card.id, 0);
-            // Put back discarded stack
         }
         putBackCard(card);
     }
@@ -234,7 +242,7 @@ public:
         Question card = unansweredCards.pop();
         cout << "Question " << card.id << ": " << card.text << endl;
         for (size_t i = 0; i < card.options.getSize(); i++) {
-            cout << card.options[i] << endl;
+            cout << card.options.get(i) << endl;
         }
         int choice;
         cout << "Do you accept the question? If you decline, you will receive 0 score for this round..." << endl
@@ -275,7 +283,7 @@ public:
     void chooseQuestion() { // user choose discarded or unanswered question
         cout << "Here is a sneak peek of the discarded question ;)" << endl
         << "if you choose a discarded question, you only receive 80 percent of the total marks..." << endl;
-        Question discardedCard = discardedCards.pop(); 
+        Question discardedCard = discardedCards.getFront(); 
         cout << "Discarded Question: " << endl 
         << discardedCard.text << endl;
         int choice;
@@ -293,13 +301,14 @@ public:
 
     void putBackCard(Question answeredCard) { 
         answeredCards.prepend(answeredCard);
+        // push cards from unanswered stack to fill the max capacity of discarded cards
+        if (discardedCards.getSize() != 5) {
+            Question q = unansweredCards.pop(); 
+            discardedCards.push(q);
+        } 
         // cout << "Unanswered cards length: " << unansweredCards.getSize() << endl;
         // cout << "Discarded cards length: " << discardedCards.getSize() << endl;
         // cout << "Answered cards length: " << answeredCards.getSize() << endl;
-        if (discardedCards.getSize() != 5) {
-            Question q = unansweredCards.pop();
-            discardedCards.push(q);
-        } 
     }
 
     void viewScoreboard() { // prompt user to select view leaderboard/hierarchy
@@ -309,7 +318,7 @@ public:
         << "2. Rank hierarchy" << endl 
         << "3. Exit Game" << endl 
         << "Enter your choice: ";
-        cin >> choice;
+        validateInput("viewRanking", choice);
         if (choice == 1) {
             showLeaderboard();
         } else if (choice == 2) {
@@ -320,13 +329,13 @@ public:
         }
     }
 
-    void repeatRound() { // 3 rounds then calculate the total score for each student
-        for (size_t i = 1; i < 4; i++)
-        {
+    void repeatRound() {
+        for (size_t i = 1; i < 4; i++) {
             cout << endl << "ROUND " << i << ":" << endl;
             chooseQuestion();
         }
-        // newStudent -> printScores();
+
+        // newStudent->printScores();
         cout << endl << "Congratulations!!! Would you like to see how well you did ;) ?" << endl;
         studentList.append(*newStudent);
         viewScoreboard();
@@ -375,7 +384,7 @@ public:
                 LinkedList<Score> scores = student.getScores();
                 for (int round = 0; round < 3; round++) {
                     if (round < scores.getSize()) {
-                        Score score = scores[round];
+                        Score score = scores.get(round);
                         string qid = to_string(score.getQuestionID());
                         string rscore = to_string(score.getScore());
                         string roundResults = "Q"+qid+":"+rscore;
@@ -443,17 +452,24 @@ public:
                 cout << "Enter the student ID to check if they are in the top 30: ";
                 cin >> searchID;
 
-                TreeNode* foundStudent = tree.find(searchID);
-                if (foundStudent) {
-                    cout << "Student " << searchID << " is in the top 30 winners!" << endl;
-                } else {
-                    // Check if the ID exists in the overall student list
-                    Student* student = studentList.search(searchID);
-                    if (student) {
-                        cout << "Student " << searchID << " exists but is not in the top 30 winners." << endl;
-                    } else {
-                        cout << "Student ID " << searchID << " is invalid." << endl;
+                Student* student = studentList.search(searchID);
+                if (student) {
+                    // Check if the student is in the top 30 by index
+                    int studentIndex = -1;
+                    for (int i = 0; i < studentList.getSize(); ++i) {
+                        if (studentList.get(i).getID() == searchID) {
+                            studentIndex = i;
+                            break;
+                        }
                     }
+
+                    if (studentIndex >= 0 && studentIndex < topSize) {
+                        cout << "Student " << searchID << " is in the top 30 winners!" << endl;
+                    } else {
+                        cout << "Student " << searchID << " exists but is not in the top 30 winners." << endl;
+                    }
+                } else {
+                    cout << "Student ID " << searchID << " is invalid." << endl;
                 }
             } else if (choice == 'R' || choice == 'r') {
                 viewScoreboard();
@@ -487,7 +503,7 @@ public:
             LinkedList<Score> scores = student->getScores();
             for (int round = 0; round < 3; round++) {
                 if (round < scores.getSize()) {
-                    Score score = scores[round];
+                    Score score = scores.get(round);
                     string qid = to_string(score.getQuestionID());
                     string rscore = to_string(score.getScore());
                     string roundResults = "Q"+qid+":"+rscore;
