@@ -60,17 +60,6 @@ public:
         return current->data;
     }
 
-    T* search(const string& id) {
-        Node* current = head;
-        while (current) {
-            if (current->data.getID() == id) {
-                return &(current->data);
-            }
-            current = current->next;
-        }
-        return nullptr;
-    }
-
     
     T popBack() {
         if (!head) throw out_of_range("List is empty.");
@@ -96,23 +85,20 @@ public:
         return data;
     }
 
-    // Shuffle method for the linked list
     void shuffle() {
-        if (getSize() <= 1) return; // No need to shuffle if the list has 0 or 1 element
+        int size = getSize();
+        if (size <= 1) return; // No need to shuffle if the list has 0 or 1 element
 
         // Convert linked list to array
-        int size = getSize();
         T* array = new T[size];
         for (int i = 0; i < size; ++i) {
             array[i] = get(i);
         }
 
         // Shuffle array using Fisher-Yates algorithm
-        random_device rd;
-        mt19937 gen(rd());
+        srand(time(NULL)); // Seed for randomness
         for (int i = size - 1; i > 0; --i) {
-            uniform_int_distribution<> dis(0, i);
-            int j = dis(gen);
+            int j = rand() % (i + 1);
             swap(array[i], array[j]);
         }
 

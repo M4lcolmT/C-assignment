@@ -138,6 +138,7 @@ public:
         }
     }
     
+    // compare and count how many answers is correct
     int countCharAnswer(string& formattedUserAnswer, string& formattedCardAnswer) {
         int numCorrect = 0;
         for (char ch : formattedUserAnswer) {
@@ -148,6 +149,7 @@ public:
         return numCorrect;
     }
 
+    // remove commas from the user and csv answer string
     string removeCommas(const string& answer) {
         string result;
         for (char ch : answer) {
@@ -303,9 +305,6 @@ public:
             Question q = unansweredCards.pop(); 
             discardedCards.push(q);
         } 
-        // cout << "Unanswered cards length: " << unansweredCards.getSize() << endl;
-        // cout << "Discarded cards length: " << discardedCards.getSize() << endl;
-        // cout << "Answered cards length: " << answeredCards.getSize() << endl;
     }
 
     void viewScoreboard() { // prompt user to select view leaderboard/hierarchy
