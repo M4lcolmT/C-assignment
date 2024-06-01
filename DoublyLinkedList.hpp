@@ -18,6 +18,7 @@ private:
     Node* tail;
     int size;
 
+    // merge sort functions start here
     Node* split(Node* head) {
         Node* fast = head;
         Node* slow = head;
@@ -105,14 +106,29 @@ public:
         }
     }
 
+    // Search student from the front and back
     T* search(const string& id) {
         Node* current = head;
-        while (current) {
+        Node* reverse = tail;
+
+        // Traverse from both ends simultaneously
+        while (current && reverse) {
             if (current->data.getID() == id) {
                 return &(current->data);
             }
+            if (reverse->data.getID() == id) {
+                return &(reverse->data);
+            }
             current = current->next;
+            reverse = reverse->prev;
         }
+
+        if (current) {
+            if (current->data.getID() == id) {
+                return &(current->data);
+            }
+        }
+
         return nullptr;
     }
 
