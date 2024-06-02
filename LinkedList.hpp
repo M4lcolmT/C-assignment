@@ -60,7 +60,7 @@ public:
         return current->data;
     }
 
-    
+    // remove the last element from the linked list
     T popBack() {
         if (!head) throw out_of_range("List is empty.");
 

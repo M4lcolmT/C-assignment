@@ -424,16 +424,13 @@ public:
         studentList.sort([](const Student& a, const Student& b) {
             return a.getTotalScore() > b.getTotalScore(); 
         });
-
         int topSize = min(studentList.getSize(), 30);
         ArrayList<Student> top30List;
         for (int i = 0; i < topSize; ++i) {
             top30List.add(studentList.get(i));
         }
-
         Tree tree;
         tree.buildTree(top30List);
-
         cout << "\nDisplaying hierarchy of top 30 students:" << endl;
         tree.displayHorizontalTree();
 
@@ -452,17 +449,16 @@ public:
                 if (student) {
                     // Check if the student is in the top 30 by index
                     int studentIndex = -1;
-                    for (int i = 0; i < studentList.getSize(); ++i) {
-                        if (studentList.get(i).getID() == searchID) {
+                    for (int i = 0; i < top30List.getSize(); ++i) {
+                        if (top30List.get(i).getID() == searchID) {
                             studentIndex = i;
                             break;
                         }
                     }
-
-                    if (studentIndex >= 0 && studentIndex < topSize) {
+                    if (studentIndex >= 0) {
                         cout << "Student " << searchID << " is in the top 30 winners!" << endl;
                     } else {
-                        cout << "Student " << searchID << " exists but is not in the top 30 winners." << endl;
+                        cout << "Student " << searchID << " is not in the top 30 winners." << endl;
                     }
                 } else {
                     cout << "Student ID " << searchID << " is invalid." << endl;

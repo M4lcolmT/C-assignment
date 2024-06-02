@@ -41,7 +41,7 @@ public:
         return length;
     }
 
-    const T& get(size_t index) const {
+    T& get(size_t index) const {
         if (index >= length) {
             throw out_of_range("Index out of range");
         }
